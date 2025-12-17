@@ -1,0 +1,339 @@
+Protocol
+2009/9/14
+Otis #: document #
+Revision : 1.0
+
+
+
+Otis Instruments GEN II WireFree Protocol
+Brian Butler
+Engineering
+
+Table of Contents
+
+Document Overview.......................................................2
+Protocol Overview.......................................................2
+Protocol Details........................................................2
+	Protocol 0............................................................3
+	Protocol 1............................................................3
+		Transmitter Address.................................................4
+		Protocol Number.....................................................4
+		Sensor Reading......................................................4
+		Sensor Mode/Sensor Type.............................................4
+		Battery Reading.....................................................5
+		Gas Type Battery Scale..............................................5
+		Fault Error/Text....................................................6
+		CheckSum/Length of Text.............................................6
+		Text................................................................7
+	Protocol 2............................................................7
+	Protocol 3............................................................7
+	Protocol 4............................................................7
+	Protocol 5............................................................7
+	Protocol 6............................................................7
+Transceiver Details.....................................................8
+Key....................................................................10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Document Overview:
+
+This document attempts to explain Otis WireFree Generation II Protocol(WFP-2), the digital communication protocol utilized by the second generation of Otis WireFree products.  Unless it is explicitly stated otherwise, all information herein refers to the high level software protocol only; header data added by the transceivers is ignored.
+
+This document will also describe some of the commonly used conventions at the time of writing.  These are conventions only, and may be adhered to, ignored, or modified on a per device basis as needed.  
+
+Finally, this document should serve as a guide only.  While every effort has been made to ensure the accuracy of the information presented, the final authority is always the source code.  A general rule of thumb; if there is a conflict between this document and the source code of two or more devices, assume an error in this document.  
+
+Protocol Overview:
+
+WFP-2 has one topology for communication.  This is a point-to-point with acknowledge(ACK).  Each device is given its own address.  Sensors will be given their own set of addresses.  A Monitor is either Primary(PM) or Secondary(SM).  This is user selectable and changes how the radios work with it.    
+
+The sensors will only ACK with one monitor.  This will be the PM.  All of the SM will be able to hear the sensors but will not have ACKs with either them or the PM.  
+
+The sensors will transmit every 5 seconds if there is gas and every 60 seconds if there is no gas.  It will also transmit if the mode of the sensor changes.  It could be up to 5 seconds after entering a mode before it transmits.  
+
+There will be different ways of sending data.  These are called protocols.  Each packet will include the protocol number.  This number will indicate how the receiver interprets the rest of the data.  When there is a new protocol added in a device we will add it here as well.
+
+
+Protocol Details:
+
+A WFP-2 message is composed of at least 4 bytes of binary data.  The first two bytes will always be the address.  The third byte will always be the protocol number.  At the end there will always be a checksum.  Any other bytes will be determined by the protocol number.  The different protocols are discussed below. 
+
+
+
+
+
+
+	Protocol 0:
+Table 1: WFP-1 Structure Summary
+Byte 	Description
+0	Transmitter address MSB.  Which for this transmission is 0x03
+1	Transmitter address LSB.  Which for this transmission is 0xE9
+2	Protocol Number.  Which is 0.
+3	Checksum.  Which will be EC
+
+Is for when the Primary comes up and there is a secondary monitor set as a server.  The Primary Monitor sends this message to the Secondary that is a server.  The secondary will become a client again and let the Primary be the server.  
+
+Since the Monitors do not have addresses we will address this monitor as 1001.  It was originally one higher than the highest address available to sensors, but we have since limited sensors to address 255 and below instead of 1000 and below.
+
+	Protocol 1:
+
+Protocol 1 is the basic protocol used to send data from a sensor to a monitor.  The first 3 bytes are like every other protocol.  They are the Transmitter Address MSB(Most Significant Byte) and LSB(Least Significant Byte), respectfully, and the protocol number.  In this case it will also be 1.  After these comes the reading in float format.  The next bytes are configurations and status, the sensor type, gas type, battery reading and scale, if there are any faults, and what mode it is in.  Following these, if there is not text, is the checksum.  Below is the table for the Structure Summary.
+
+Table 1: WFP-1 Structure Summary
+Byte 	Description
+0	Transmitter address MSB
+1	Transmitter address LSB
+2	Protocol Number
+3	Sensor reading MSB of  MSW
+4	Sensor reading LSB of  MSW
+5	Sensor reading LSB of  LSW
+6	Sensor reading LSB of  LSW
+7	Sensor mode/Sensor Type
+8	Battery Reading
+9	Gas Type/Battery Scale
+10	Fault Error/Text? Precision
+11	Checksum or length of text
+12...n	Text
+n+1	Checksum
+
+Below is more details about each byte in this protocol.
+
+
+Byte 0 and 1: Transmitter Address:
+
+A 16-bit unsigned integer.  Byte 0 is the MSB and Byte 1 is the LSB.  The address is between 1 and 255.(At one time there was discussion about making it between 1 and 1000 but that never happened.)  
+
+Byte 2: Protocol Number:
+
+This is just the protocol number.  For this protocol it will always be 1.  Since we have one byte dedicated to the protocol number we can have up to 256 protocols.  
+
+Byte 3-6: Sensor Reading:
+
+These bytes make up a 32-bit float number.  This number is the reading from the sensor.  It is broken down into bytes.  Byte 3 is the MSB of the MSW(Most Significant Word).  Byte 4 is the LSB of the MSW.  Byte 5 is the MSB of the LSW(Least Significant Word).  Byte 6 is the LSB of the LSW.  
+
+Byte 7: Sensor Mode/Sensor Type
+
+Byte 7 is a bit field containing the sensor type and the mode the sensor is currently in.  
+
+Table 2: Byte 7 Structure
+TYPE4	TYPE3	TYPE2	TYPE1	TYPE0	MODE2	MODE1	MODE0
+bit 7							bit 0
+
+Mode(Mode2:Mode0)
+These bytes make up what mode the sensor is in.
+Table 3: Mode Bits
+MODE2:MODE0	Mode of Sensor
+0(000)	Normal
+1(001)	Null
+2(010)	Calibration
+3(011)	Relay
+4(100)	Radio Address
+5(101)	Diagnostic
+6(110)	Advanced Menu
+7(111)	Administration Menu
+
+
+
+
+
+
+Sesnor Type(Type4:Type0)
+These bytes make up what type of sensor it is.
+Table 4: Sensor Type
+Sensor	Sensor Type
+0(00000)	EC
+1(00001)	IR
+2(00010)	CB
+3(00011)	MOS
+4(00100)	PID
+5(00101)	TANK LEVEL
+6(00110)	4-20 mA 
+7(00111)	SWITCH
+N-29(11101)	Sensors to come latter
+30(11110)	OI-WF190
+31(11111)	NONE SELECTED
+
+Byte 8: Battery Reading
+This byte contains an 8-bit unsigned integer used in calculating the input power voltage to the sensor.  The input power is calculated based on the BATTER SCALE of byte 9 as described in Table 6.
+Byte 9: Gas Type/Battery Scale
+Byte 9 contains the gas type and the battery scale.  The first 7 bits are for the gas type.  Table 5 below shows the number that corresponds to each gas.  The last byte is for the battery scale.  Refer to table 6 for what the battery scale is.
+Table 5: Gas Type
+GAS	Chemical Formula
+0(0000000)	H2S
+1(0000001)	SO2
+2(0000010)	O2
+3(0000011)	CO
+4(0000100)	CL2
+5(0000101)	CO2
+6(0000110)	LEL
+7(0000111)	VOC
+8(0001000)	Feet for Tank Level
+9(0001001)	HCl
+10(0001010)	NH4
+N	To come later
+
+In the future we may have sensors that can detect other gases.  They will be put here as well when we use them in a device.
+
+Table 6: Battery Scale Calculations
+BATTEY	Calculation
+0	Input Power = [BYTE 8] / 10
+1	Input Power = [BYTE 8] 
+
+If the battery scale is zero then the battery reading is divided by 10.  This is for when we need resolutions in the tenth, i.e. 3.6.  If we do not need that resolution then we just take the reading and do nothing to it.  
+
+Byte 10: Fault/Text?:
+The first four bits of this byte are used for the Error Code given on table 7.  The next 3 bits are the precision of the reading.  Code for these bits are given on table 8.  The last bit says if there is text with this transmission.  If there is text it will be a 1, if not it will be  a 0.
+  Table 7: Error Code
+Fault	Description
+0(0000)	None
+1(0001)	Sensor Board Timed Out
+2(0010)	Bad Reading
+3(0011)	Current Draw Too High
+4(0100)	ADC not responding
+5(0101)	Error during Null
+6(0110)	Future Error
+7(0111)	Checksum error
+8(1000)	Two sensors with same Otis Addr.
+9(1001)	Sensor radio timeout
+10(1010)	Sensor is wired, nothing connected
+N	Future errors
+15(1111)	Monitor Error
+  Table 8: Precision Code
+Fault	Description
+0(000)	No decimal point
+1(001)	1 decimal point
+2(010)	2  decimal points
+3(011)	3  decimal points
+4(100)	4  decimal points
+5(101)	5  decimal points
+6(110)	6  decimal points
+7(111)	7  decimal points
+
+Byte 11: CheckSum of length of Text
+If byte 10 says there will be text then this byte tells how many bytes of text there will be.  There can be up to 255 characters of text.  If byte 10 says there is no text, then this byte is a checksum.  
+The checksum value is calculated by taking the sum of the values of all other bytes and using the LSB(i.e. Taking the low byte of the two byte result).
+Example:
+If the first 11 bytes of a message were [0x01][0x00][0x0A][0x01][0x00][0x0A][0x00][0xA1][0x0F][0x34][0x03], then checksum value would be 0xFD.
+If the first eight bytes of a message were [0x01][0x00][0x0A][0x01][0x00][0xC8][0xE0][0x62][0xF3][0x5E][0xCD], then checksum value would be 0x34.
+
+
+Byte 12..N: Text:
+If there is text then every byte up until the last contains an ASCII value.  They will be compiled into a string on the receiver and it will make a message.  This message will either tell the receiver to do something or more likely just display on the receiver.  This is still in the talking stages, so it is not a feature yet.  
+Byte N + 1: CheckSum:
+This is the same as the byte 11 checksum, except it includes all of the text as well.  It still takes the hex values, not the ASCII characters when it is calculating the checksum.
+	Protocol 2:
+Protocol 2 is just like protocol 1 except there are only 8 bytes.  The first seven bytes are the same as protocol 1.  The last byte, byte 7,  is the checksum, instead of byte 11.  The checksum is figured out the same way except only 7 bytes are used to calculate it.  These bytes are the 2 address bytes, the 1 protocol number byte, and the four reading bytes.  
+This protocol is sent only when detecting gas above the background level.  When this occurs it sends every 5 seconds until the gas goes below the background level.  
+	Protocol 3:  (As of now not used.  If current way to do MM then might come back)
+Protocol 3 is the heartbeat for monitors.  They send the first 3 bytes that all protocols send and a checksum.  The checksum is the same as all the others, but only three bytes to add.  The bytes are the two address bytes and the protocol number.  This is only to tell the PM that there is another monitor still here.  So if there are any changes on the sensors then the PM needs to send them to this monitor address as well.
+	Protocol 4 & 5:  (As of now not used.  If current way to do MM then might come back)
+Protocol 4 & 5 are for the PM to send to any monitor it has gotten a heartbeat from.  If there is a change on a sensor the PM sends it to all other monitors.  It does not just send the changed values, it sends the whole packet that it just got.  It also adds the RSSI value to the PM.  This will be where the checksum would be, and the checksum will be the next byte.  
+Protocol 4 will be for the protocol number when the message it is forwarding is protocol 1.  Protocol 5 is the number for when it is forwarding protocol 2.  
+
+	Protocol 6:  (As of now not used.  If current way to do MM then might come back)
+Protocol 6 is for when a new monitor is found.  The PM sends all the information for all sensors to the new monitor it got a heartbeat from.  The packets it sends will look like protocol 1 except the protocol number will be 6 and it will have one more byte, the RSSI to PM.  This will be where the checksum would be, and the checksum will be the next byte.  It will send a packet for each sensor it has data for, instead of making one big packet.   
+	Protocol 7:  
+Protocol 7 is for sending the last null and cal times.  It will also send the reading for data-logging purposes on the monitor.  It will show them how long it was gassed and at what value.  It will send whenever it is caled or nulled.  It will know this reading will not set off the relays.  Whenever either the null or cal increases by one hour it will send them both again to keep the monitor up to date, or if a new monitor appears it will get the value too.
+Table 9: WFP-1 Structure Summary
+Byte 	Description
+0	Transmitter address MSB
+1	Transmitter address LSB
+2	Protocol Number
+3	Sensor reading MSB of  MSW
+4	Sensor reading LSB of  MSW
+5	Sensor reading LSB of  LSW
+6	Sensor reading LSB of  LSW
+7	Last Time Null (in Days) MSB
+8	Last Time Null (in Days) LSB
+9	Last Time Cal (in Days) MSB
+10	Last Time Cal (in Days) LSB
+11	Sensor mode/Sensor Type
+12	Checksum
+
+Transceiver Details:
+While not an official part of the specification, the transceiver does play an important role when implementing the specification: all devices must be using the same type of transceiver in order to communicate.
+	Hardware:
+There are four different radios being used.  Three are from Digi.  These three are the Xbee-Pro XSC and the MaxStream 9XStream 900 MHz & 24XStream 2.4 GHz radios.  The two XStream are only for legacy on monitors.  This is to talk to GEN I radios.  These radios have a special Vendor Number of OIIO (Oscar India India Oscar).  The XSC will have a different VID number.  If they have the same VID then we might get transmissions we should not get.  The XSC can talk to the Xstream 100% of the time, but the XStream can only talk to the XSC part of the time.  For this reason we can not use XSC for legacy and they need a different VID. 
+We also have a 2.4 GHz radio from Laird.  This is for use with Gen II senors as well as Gen II monitors.  We can configure these radios with our our VID in house.    
+	Firmware:
+All non-legacy radios have acknowledgments.  We can also read the RSSI values on both ends to see how well the signal strength is.  Right now we can not read the RSSI on XSC sensor heads, but plan to implement protocol 0 for this purpose.   We might also find some other way to achieve this as well.   
+The firmware of the XSC will be 5.0.  With this we get a much easier to understand address scheme.  It also allows us to have more than 16 monitors, which we were originally limiting ourselves to.   Now we are no longer having ACKs with Monitor to Monitor communication, so the number of Monitors has no limit.  The other monitors will have a setting that lets it hear everything going to the PM but not ACK at all.      
+With the Laird 2.4 we get more features right now.  It has an API mode which gives the signal strength on both the receiving and the transmitting end.  We can also distinguish between radios because each radio sends its unique MAC address every time it transmits.  This way we can tell if there are two or more sensors with the same Otis address.  
+With the Lairds we are also using the Network Channel and System ID.  This will allow multiple networks in the same area.  We have a default of Network Channel 5 and System ID of 37.  The Network Channel is changeable, but the System ID is not.  This is because they recommend if you want two networks next to each other then change the Channel not System ID.  So we do not think the System ID is very important.  Just change the Channel, it will be better for the Network anyway, if there are other networks with the same Channel.  And if you are on a different Channel the other Channels System ID does not matter anyway.    
+There can be only one Sever in this radio Network, so that is the PM.  Everything else gets a beacon from this radio and starts communicating with it.  When the PM boots up it checks to see if there is already a Server.  If there is, it give a warning.  Then allows you to change the Channel and see if this Channel is free.  Bad things can happen if you put two servers with the same Channel and System ID.  So we prevent it from happening.  
+We are also using a function called Sniff Permit.  This allows a radio to hear everything that happens in the network, but not ACK.  This is how the Laird are doing Multiple Monitors.           
+Later they should be adding encryption.  When they do we are planning to start using it.  If encryption is not set then these radios will work with the old firmware versions out there.  But for new sites they may want encryption.  We can also upgrade the other radios if they send them back.    
+There are other features with these radios that might be implemented in the future.  We will put those here as well.    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Key:
+
+Bit – Is either on/off 1 or 0.  Putting bits together makes bytes and words.
+Byte – Eight bits make one byte.
+Word – 16 bits or two bytes make one word. 
+LSB – Least Significant Byte
+LSW – Least Significant Word
+MSB – Most Significant Byte
+MSW – Mode Significant Word
+MM – Multiple Monitors.
+PM –  Primary Monitor.  The monitor all the sensors talk to and that relays that information to the other    
+            monitors
+SM –  Secondary Monitor
+RSSI – Receive Signal Strength.  
+
+
+

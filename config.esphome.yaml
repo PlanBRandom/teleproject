@@ -1,0 +1,142 @@
+# ESPHome Configuration for ESP32 + MAX485
+# OI-7530/7010 Modbus to MQTT Bridge via WiFi
+
+substitutions:
+  device_name: oi7530-bridge
+  friendly_name: "OI-7530 Gas Monitor"
+  modbus_uart_tx: GPIO17
+  modbus_uart_rx: GPIO16
+  max485_de: GPIO4
+  max485_re: GPIO4
+
+esphome:
+  name: ${device_name}
+  platform: ESP32
+  board: esp32dev
+
+# WiFi configuration
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  
+  # Enable fallback hotspot
+  ap:
+    ssid: "${device_name} Fallback"
+    password: !secret ap_password
+
+# Enable logging
+logger:
+  level: INFO
+  baud_rate: 0  # Disable UART logging to free up pins
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_key
+
+# Enable OTA updates
+ota:
+  password: !secret ota_password
+
+# Enable MQTT (optional, if you want direct MQTT alongside HA API)
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  discovery: true
+  discovery_prefix: homeassistant
+
+# UART for Modbus communication
+uart:
+  id: mod_bus
+  tx_pin: ${modbus_uart_tx}
+  rx_pin: ${modbus_uart_rx}
+  baud_rate: 9600
+  stop_bits: 1
+  parity: NONE
+
+# Modbus controller
+modbus:
+  id: modbus1
+  uart_id: mod_bus
+  flow_control_pin: ${max485_de}  # DE and RE pins on MAX485
+
+modbus_controller:
+  - id: oi7530
+    address: 0x1  # Modbus slave address
+    modbus_id: modbus1
+    setup_priority: -10
+    update_interval: 5s
+
+# Sensor definitions - Channel readings (32-bit floats)
+sensor:
+  # WiFi signal strength
+  - platform: wifi_signal
+    name: "${friendly_name} WiFi Signal"
+    update_interval: 60s
+
+  # Channel 1 Reading
+  - platform: modbus_controller
+    modbus_controller_id: oi7530
+    name: "${friendly_name} Channel 1"
+    address: 0x21  # Decimal 33
+    register_type: holding
+    value_type: FP32
+    unit_of_measurement: "ppm"
+    device_class: gas
+    accuracy_decimals: 2
+    
+  # Channel 2 Reading
+  - platform: modbus_controller
+    modbus_controller_id: oi7530
+    name: "${friendly_name} Channel 2"
+    address: 0x23  # Decimal 35
+    register_type: holding
+    value_type: FP32
+    unit_of_measurement: "ppm"
+    device_class: gas
+    accuracy_decimals: 2
+  
+  # Channel 3 Reading
+  - platform: modbus_controller
+    modbus_controller_id: oi7530
+    name: "${friendly_name} Channel 3"
+    address: 0x25  # Decimal 37
+    register_type: holding
+    value_type: FP32
+    unit_of_measurement: "ppm"
+    device_class: gas
+    accuracy_decimals: 2
+  
+  # Channel 4 Reading
+  - platform: modbus_controller
+    modbus_controller_id: oi7530
+    name: "${friendly_name} Channel 4"
+    address: 0x27  # Decimal 39
+    register_type: holding
+    value_type: FP32
+    unit_of_measurement: "ppm"
+    device_class: gas
+    accuracy_decimals: 2
+  
+  # Add more channels as needed (up to 32)
+  # Follow the pattern: address increments by 2 for each channel
+  # Channel N address = 0x21 + (N-1)*2
+
+# Text sensors for device info
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "${friendly_name} IP Address"
+    ssid:
+      name: "${friendly_name} Connected SSID"
+
+# Binary sensors for status
+binary_sensor:
+  - platform: status
+    name: "${friendly_name} Status"
+
+# Buttons for control
+button:
+  - platform: restart
+    name: "${friendly_name} Restart"

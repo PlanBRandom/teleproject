@@ -1,0 +1,706 @@
+[
+  {
+    "channel": 1,
+    "radio_address": 2,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.59375
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.59375
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.59375,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 2,
+    "radio_address": 3,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 8,
+        "battery": 21.075000762939453
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 8,
+        "battery": 21.075000762939453
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 8,
+        "battery": 21.075000762939453,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 3,
+    "radio_address": 4,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 8,
+        "battery": 3.390625
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.390625
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 8,
+        "battery": 3.390625,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 4,
+    "radio_address": 5,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 22.049999237060547
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 22.049999237060547
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 22.049999237060547,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 5,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.59375
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.59375
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.59375,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 6,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 23.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 23.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 7,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.5
+      },
+      "OI-7032": {
+        "value": 1.0,
+        "fault": 0,
+        "battery": 3.5,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 8,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 22.049999237060547
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 22.049999237060547,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 9,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.59375
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.59375,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 10,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 11.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 11.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 11,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 3.5
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 3.5,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 12,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 13,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.5
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.5,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 14,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 23.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 23.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 15,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 1.8366818971905377e-41,
+        "fault": 0,
+        "battery": 3.5
+      },
+      "OI-7032": {
+        "value": 1.8366818971905377e-41,
+        "fault": 0,
+        "battery": 3.5,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 16,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 20.875,
+        "fault": 9,
+        "battery": 23.0
+      },
+      "OI-7032": {
+        "value": 20.875,
+        "fault": 0,
+        "battery": 23.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 17,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 0.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 18,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 0.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 19,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 5.510185821418046e-41
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 5.510185821418046e-41,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 20,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.9000000953674316
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.9000000953674316,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 21,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 4.0,
+        "fault": 0,
+        "battery": 3.9000000953674316
+      },
+      "OI-7032": {
+        "value": 4.0,
+        "fault": 0,
+        "battery": 3.9000000953674316,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 22,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.9000000953674316
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.9000000953674316,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 23,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 3.890625
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 3.890625,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 24,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 0.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 25,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 0.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 26,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 0.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 27,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 0.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 28,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 0.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0,
+        "is_wired": null
+      }
+    }
+  },
+  {
+    "channel": 29,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 0.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0,
+        "is_wired": false
+      }
+    }
+  },
+  {
+    "channel": 30,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 0.0
+      },
+      "OI-7032": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0,
+        "is_wired": true
+      }
+    }
+  },
+  {
+    "channel": 31,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 0,
+        "battery": 0.0
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 9,
+        "battery": 0.0
+      },
+      "OI-7032": {
+        "value": 2.644950851413092e-41,
+        "fault": 0,
+        "battery": 0.0,
+        "is_wired": false
+      }
+    }
+  },
+  {
+    "channel": 32,
+    "radio_address": 0,
+    "devices": {
+      "OI-7010": {
+        "value": 0.0,
+        "fault": 1,
+        "battery": 2.942726775082116e-44
+      },
+      "OI-7530": {
+        "value": 0.0,
+        "fault": 1,
+        "battery": 3.363116314379561e-44
+      },
+      "OI-7032": {
+        "value": 20.875,
+        "fault": 1,
+        "battery": 2.802596928649634e-45,
+        "is_wired": true
+      }
+    }
+  }
+]

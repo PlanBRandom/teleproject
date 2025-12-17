@@ -1,0 +1,785 @@
+                     OI-7500 Modbus Register Map,,,,,,,
+"Register Address
+(Hexadecimal)",Register Address (Decimal),"
+
+Data Description",,"
+
+R/W",Length (In Bits),"
+
+Units","
+
+Valid Response"
+Radio Data,,,,,,,
+1,1,Channel 1 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+2,2,Channel 2 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+3,3,Channel 3 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+4,4,Channel 4 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+5,5,Channel 5 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+6,6,Channel 6 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+7,7,Channel 7 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+8,8,Channel 8 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+9,9,Channel 9 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+A,10,Channel 10 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+B,11,Channel 11 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+C,12,Channel 12 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+D,13,Channel 13 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+E,14,Channel 14 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+F,15,Channel 15 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+10,16,Channel 16 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+11,17,Channel 17 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+12,18,Channel 18 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+13,19,Channel 19 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+14,20,Channel 20 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+15,21,Channel 21 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+16,22,Channel 22 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+17,23,Channel 23 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+18,24,Channel 24 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+19,25,Channel 25 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+1A,26,Channel 26 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+1B,27,Channel 27 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+1C,28,Channel 28 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+1D,29,Channel 29 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+1E,30,Channel 30 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+1F,31,Channel 31 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+20,32,Channel 32 Radio Address,,R/W,16,INTEGER,Radio Address (1-255)
+21,33,Channel 1 Reading,,R,32,FLOAT,Any valid sensor reading
+23,35,Channel 2 Reading,,R,32,FLOAT,Any valid sensor reading
+25,37,Channel 3 Reading,,R,32,FLOAT,Any valid sensor reading
+27,39,Channel 4 Reading,,R,32,FLOAT,Any valid sensor reading
+29,41,Channel 5 Reading,,R,32,FLOAT,Any valid sensor reading
+2B,43,Channel 6 Reading,,R,32,FLOAT,Any valid sensor reading
+2D,45,Channel 7 Reading,,R,32,FLOAT,Any valid sensor reading
+2F,47,Channel 8 Reading,,R,32,FLOAT,Any valid sensor reading
+31,49,Channel 9 Reading,,R,32,FLOAT,Any valid sensor reading
+33,51,Channel 10 Reading,,R,32,FLOAT,Any valid sensor reading
+35,53,Channel 11 Reading,,R,32,FLOAT,Any valid sensor reading
+37,55,Channel 12 Reading,,R,32,FLOAT,Any valid sensor reading
+39,57,Channel 13 Reading,,R,32,FLOAT,Any valid sensor reading
+3B,59,Channel 14 Reading,,R,32,FLOAT,Any valid sensor reading
+3D,61,Channel 15 Reading,,R,32,FLOAT,Any valid sensor reading
+3F,63,Channel 16 Reading,,R,32,FLOAT,Any valid sensor reading
+41,65,Channel 17 Reading,,R,32,FLOAT,Any valid sensor reading
+43,67,Channel 18 Reading,,R,32,FLOAT,Any valid sensor reading
+45,69,Channel 19 Reading,,R,32,FLOAT,Any valid sensor reading
+47,71,Channel 20 Reading,,R,32,FLOAT,Any valid sensor reading
+49,73,Channel 21 Reading,,R,32,FLOAT,Any valid sensor reading
+4B,75,Channel 22 Reading,,R,32,FLOAT,Any valid sensor reading
+4D,77,Channel 23 Reading,,R,32,FLOAT,Any valid sensor reading
+4F,79,Channel 24 Reading,,R,32,FLOAT,Any valid sensor reading
+51,81,Channel 25 Reading,,R,32,FLOAT,Any valid sensor reading
+53,83,Channel 26 Reading,,R,32,FLOAT,Any valid sensor reading
+55,85,Channel 27 Reading,,R,32,FLOAT,Any valid sensor reading
+57,87,Channel 28 Reading,,R,32,FLOAT,Any valid sensor reading
+59,89,Channel 29 Reading,,R,32,FLOAT,Any valid sensor reading
+5B,91,Channel 30 Reading,,R,32,FLOAT,Any valid sensor reading
+5D,93,Channel 31 Reading,,R,32,FLOAT,Any valid sensor reading
+5F,95,Channel 32 Reading,,R,32,FLOAT,Any valid sensor reading
+61,97,Channel 1 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+62,98,Channel 2 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+63,99,Channel 3 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+64,100,Channel 4 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+65,101,Channel 5 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+66,102,Channel 6 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+67,103,Channel 7 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+68,104,Channel 8 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+69,105,Channel 9 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+6A,106,Channel 10 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+6B,107,Channel 11 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+6C,108,Channel 12 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+6D,109,Channel 13 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+6E,110,Channel 14 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+6F,111,Channel 15 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+70,112,Channel 16 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+71,113,Channel 17 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+72,114,Channel 18 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+73,115,Channel 19 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+74,116,Channel 20 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+75,117,Channel 21 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+76,118,Channel 22 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+77,119,Channel 23 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+78,120,Channel 24 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+79,121,Channel 25 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+7A,122,Channel 26 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+7B,123,Channel 27 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+7C,124,Channel 28 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+7D,125,Channel 29 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+7E,126,Channel 30 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+7F,127,Channel 31 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+80,128,Channel 32 Mode,,R,16,ENUMERATION,0-7  See Mode Enumeration Below
+81,129,Channel 1 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+83,131,Channel 2 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+85,133,Channel 3 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+87,135,Channel 4 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+89,137,Channel 5 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+8B,139,Channel 6 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+8D,141,Channel 7 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+8F,143,Channel 8 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+91,145,Channel 9 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+93,147,Channel 10 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+95,149,Channel 11 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+97,151,Channel 12 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+99,153,Channel 13 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+9B,155,Channel 14 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+9D,157,Channel 15 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+9F,159,Channel 16 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+A1,161,Channel 17 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+A3,163,Channel 18 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+A5,165,Channel 19 Battery ,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+A7,167,Channel 20 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+A9,169,Channel 21 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+AB,171,Channel 22 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+AD,173,Channel 23 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+AF,175,Channel 24 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+B1,177,Channel 25 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+B3,179,Channel 26 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+B5,181,Channel 27 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+B7,183,Channel 28 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+B9,185,Channel 29 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+BB,187,Channel 30 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+BD,189,Channel 31 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+BF,191,Channel 32 Battery,,R,32,FLOAT,Sensor Input Voltage( >= 0.0)
+C1,193,Channel 1 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+C2,194,Channel 2 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+C3,195,Channel 3 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+C4,196,Channel 4 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+C5,197,Channel 5 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+C6,198,Channel 6 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+C7,199,Channel 7 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+C8,200,Channel 8 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+C9,201,Channel 9 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+CA,202,Channel 10 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+CB,203,Channel 11 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+CC,204,Channel 12 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+CD,205,Channel 13 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+CE,206,Channel 14 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+CF,207,Channel 15 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+D0,208,Channel 16 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+D1,209,Channel 17 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+D2,210,Channel 18 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+D3,211,Channel 19 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+D4,212,Channel 20 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+D5,213,Channel 21 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+D6,214,Channel 22 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+D7,215,Channel 23 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+D8,216,Channel 24 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+D9,217,Channel 25 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+DA,218,Channel 26 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+DB,219,Channel 27 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+DC,220,Channel 28 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+DD,221,Channel 29 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+DE,222,Channel 30 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+DF,223,Channel 31 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+E0,224,Channel 32 Sec Since Last Message,,R,16,INTEGER,"-1-32768 Secs, -1 = never. Staying 0 = timeout"
+E1,225,Channel 1 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+E2,226,Channel 2 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+E3,227,Channel 3 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+E4,228,Channel 4 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+E5,229,Channel 5 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+E6,230,Channel 6 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+E7,231,Channel 7 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+E8,232,Channel 8 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+E9,233,Channel 9 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+EA,234,Channel 10 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+EB,235,Channel 11 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+EC,236,Channel 12 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+ED,237,Channel 13 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+EE,238,Channel 14 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+EF,239,Channel 15 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+F0,240,Channel 16 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+F1,241,Channel 17 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+F2,242,Channel 18 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+F3,243,Channel 19 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+F4,244,Channel 20 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+F5,245,Channel 21 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+F6,246,Channel 22 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+F7,247,Channel 23 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+F8,248,Channel 24 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+F9,249,Channel 25 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+FA,250,Channel 26 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+FB,251,Channel 27 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+FC,252,Channel 28 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+FD,253,Channel 29 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+FE,254,Channel 30 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+FF,255,Channel 31 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+100,256,Channel 32 Sensor Type,,R,16,ENUMERATION,0-31  See Sensor Type Enumeration Below
+101,257,Channel 1 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+102,258,Channel 2 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+103,259,Channel 3 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+104,260,Channel 4 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+105,261,Channel 5 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+106,262,Channel 6 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+107,263,Channel 7 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+108,264,Channel 8 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+109,265,Channel 9 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+10A,266,Channel 10 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+10B,267,Channel 11 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+10C,268,Channel 12 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+10D,269,Channel 13 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+10E,270,Channel 14 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+10F,271,Channel 15 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+110,272,Channel 16 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+111,273,Channel 17 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+112,274,Channel 18 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+113,275,Channel 19 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+114,276,Channel 20 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+115,277,Channel 21 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+116,278,Channel 22 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+117,279,Channel 23 Gas type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+118,280,Channel 24 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+119,281,Channel 25 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+11A,282,Channel 26 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+11B,283,Channel 27 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+11C,284,Channel 28 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+11D,285,Channel 29 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+11E,286,Channel 30 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+11F,287,Channel 31 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+120,288,Channel 32 Gas Type,,R,16,ENUMERATION,0-127 See Gas Enumeration below
+121,289,Channel 1 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+122,290,Channel 2 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+123,291,Channel 3 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+124,292,Channel 4 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+125,293,Channel 5 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+126,294,Channel 6 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+127,295,Channel 7 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+128,296,Channel 8 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+129,297,Channel 9 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+12A,298,Channel 10 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+12B,299,Channel 11 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+12C,300,Channel 12 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+12D,301,Channel 13 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+12E,302,Channel 14 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+12F,303,Channel 15 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+130,304,Channel 16 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+131,305,Channel 17 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+132,306,Channel 18 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+133,307,Channel 19 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+134,308,Channel 20 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+135,309,Channel 21 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+136,310,Channel 22 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+137,311,Channel 23 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+138,312,Channel 24 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+139,313,Channel 25 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+13A,314,Channel 26 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+13B,315,Channel 27 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+13C,316,Channel 28 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+13D,317,Channel 29 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+13E,318,Channel 30 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+13F,319,Channel 31 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+140,320,Channel 32 Fault,,R,16,ENUMERATION,0-15 See Fault Enumeration below
+141,321,Channel 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+142,322,Channel 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+143,323,Channel 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+144,324,Channel 4 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+145,325,Channel 5 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+146,326,Channel 6 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+147,327,Channel 7 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+148,328,Channel 8 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+149,329,Channel 9 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+14A,330,Channel 10 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+14B,331,Channel 11 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+14C,332,Channel 12 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+14D,333,Channel 13 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+14E,334,Channel 14 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+14F,335,Channel 15 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+150,336,Channel 16 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+151,337,Channel 17 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+152,338,Channel 18 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+153,339,Channel 19 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+154,340,Channel 20 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+155,341,Channel 21 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+156,342,Channel 22 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+157,343,Channel 23 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+158,344,Channel 24 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+159,345,Channel 25 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+15A,346,Channel 26 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+15B,347,Channel 27 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+15C,348,Channel 28 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+15D,349,Channel 29 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+15E,350,Channel 30 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+15F,351,Channel 31 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+160,352,Channel 32 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+161,353,Channel 1 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+162,354,Channel 2 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+163,355,Channel 3 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+164,356,Channel 4 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+165,357,Channel 5 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+166,358,Channel 6 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+167,359,Channel 7 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+168,360,Channel 8 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+169,361,Channel 9 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+16A,362,Channel 10 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+16B,363,Channel 11 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+16C,364,Channel 12 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+16D,365,Channel 13 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+16E,366,Channel 14 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+16F,367,Channel 15 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+170,368,Channel 16 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+171,369,Channel 17 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+172,370,Channel 18 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+173,371,Channel 19 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+174,372,Channel 20 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+175,373,Channel 21 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+176,374,Channel 22 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+177,375,Channel 23 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+178,376,Channel 24 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+179,377,Channel 25 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+17A,378,Channel 26 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+17B,379,Channel 27 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+17C,380,Channel 28 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+17D,381,Channel 29 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+17E,382,Channel 30 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+17F,383,Channel 31 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+180,384,Channel 32 Relay 1 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+181,385,Channel 1 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+182,386,Channel 2 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+183,387,Channel 3 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+184,388,Channel 4 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+185,389,Channel 5 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+186,390,Channel 6 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+187,391,Channel 7 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+188,392,Channel 8 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+189,393,Channel 9 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+18A,394,Channel 10 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+18B,395,Channel 11 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+18C,396,Channel 12 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+18D,397,Channel 13 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+18E,398,Channel 14 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+18F,399,Channel 15 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+190,400,Channel 16 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+191,401,Channel 17 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+192,402,Channel 18 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+193,403,Channel 19 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+194,404,Channel 20 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+195,405,Channel 21 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+196,406,Channel 22 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+197,407,Channel 23 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+198,408,Channel 24 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+199,409,Channel 25 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+19A,410,Channel 26 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+19B,411,Channel 27 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+19C,412,Channel 28 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+19D,413,Channel 29 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+19E,414,Channel 30 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+19F,415,Channel 31 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+1A0,416,Channel 32 Relay 1 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+1A1,417,Channel 1 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1A3,419,Channel 2 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1A5,421,Channel 3 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1A7,423,Channel 4 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1A9,425,Channel 5 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1AB,427,Channel 6 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1AD,429,Channel 7 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1AF,431,Channel 8 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1B1,433,Channel 9 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1B3,435,Channel 10 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1B5,437,Channel 11 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1B7,439,Channel 12 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1B9,441,Channel 13 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1BB,443,Channel 14 Relay 1 Set Point ,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1BD,445,Channel 15 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1BF,447,Channel 16 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1C1,449,Channel 17 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1C3,451,Channel 18 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1C5,453,Channel 19 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1C7,455,Channel 20 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1C9,457,Channel 21 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1CB,459,Channel 22 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1CD,461,Channel 23 Relay 1 Set Point ,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1CF,463,Channel 24 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1D1,465,Channel 25 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1D3,467,Channel 26 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1D5,469,Channel 27 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1D7,471,Channel 28 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1D9,473,Channel 29 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1DB,475,Channel 30 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1DD,477,Channel 31 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1DF,479,Channel 32 Relay 1 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+1E1,481,Channel 1 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1E2,482,Channel 2 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1E3,483,Channel 3 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1E4,484,Channel 4 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1E5,485,Channel 5 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1E6,486,Channel 6 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1E7,487,Channel 7 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1E8,488,Channel 8 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1E9,489,Channel 9 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1EA,490,Channel 10 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1EB,491,Channel 11 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1EC,492,Channel 12 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1ED,493,Channel 13 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1EE,494,Channel 14 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1EF,495,Channel 15 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1F0,496,Channel 16 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1F1,497,Channel 17 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1F2,498,Channel 18 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1F3,499,Channel 19 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1F4,500,Channel 20 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1F5,501,Channel 21 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1F6,502,Channel 22 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1F7,503,Channel 23 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1F8,504,Channel 24 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1F9,505,Channel 25 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1FA,506,Channel 26 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1FB,507,Channel 27 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1FC,508,Channel 28 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1FD,509,Channel 29 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1FE,510,Channel 30 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+1FF,511,Channel 31 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+200,512,Channel 32 Relay 1 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+201,513,Channel 1 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+202,514,Channel 2 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+203,515,Channel 3 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+204,516,Channel 4 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+205,517,Channel 5 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+206,518,Channel 6 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+207,519,Channel 7 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+208,520,Channel 8 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+209,521,Channel 9 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+20A,522,Channel 10 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+20B,523,Channel 11 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+20C,524,Channel 12 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+20D,525,Channel 13 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+20E,526,Channel 14 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+20F,527,Channel 15 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+210,528,Channel 16 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+211,529,Channel 17 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+212,530,Channel 18 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+213,531,Channel 19 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+214,532,Channel 20 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+215,533,Channel 21 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+216,534,Channel 22 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+217,535,Channel 23 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+218,536,Channel 24 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+219,537,Channel 25 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+21A,538,Channel 26 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+21B,539,Channel 27 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+21C,540,Channel 28 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+21D,541,Channel 29 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+21E,542,Channel 30 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+21F,543,Channel 31 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+220,544,Channel 32 Relay 2 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+221,545,Channel 1 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+222,546,Channel 2 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+223,547,Channel 3 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+224,548,Channel 4 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+225,549,Channel 5 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+226,550,Channel 6 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+227,551,Channel 7 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+228,552,Channel 8 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+229,553,Channel 9 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+22A,554,Channel 10 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+22B,555,Channel 11 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+22C,556,Channel 12 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+22D,557,Channel 13 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+22E,558,Channel 14 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+22F,559,Channel 15 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+230,560,Channel 16 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+231,561,Channel 17 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+232,562,Channel 18 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+233,563,Channel 19 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+234,564,Channel 20 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+235,565,Channel 21 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+236,566,Channel 22 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+237,567,Channel 23 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+238,568,Channel 24 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+239,569,Channel 25 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+23A,570,Channel 26 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+23B,571,Channel 27 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+23C,572,Channel 28 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+23D,573,Channel 29 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+23E,574,Channel 30 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+23F,575,Channel 31 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+240,576,Channel 32 Relay 2 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+241,577,Channel 1 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+243,579,Channel 2 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+245,581,Channel 3 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+247,583,Channel 4 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+249,585,Channel 5 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+24B,587,Channel 6 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+24D,589,Channel 7 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+24F,591,Channel 8 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+251,593,Channel 9 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+253,595,Channel 10 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+255,597,Channel 11 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+257,599,Channel 12 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+259,601,Channel 13 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+25B,603,Channel 14 Relay 2 Set Point ,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+25D,605,Channel 15 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+25F,607,Channel 16 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+261,609,Channel 17 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+263,611,Channel 18 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+265,613,Channel 19 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+267,615,Channel 20 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+269,617,Channel 21 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+26B,619,Channel 22 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+26D,621,Channel 23 Relay 2 Set Point ,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+26F,623,Channel 24 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+271,625,Channel 25 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+273,627,Channel 26 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+275,629,Channel 27 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+277,631,Channel 28 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+279,633,Channel 29 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+27B,635,Channel 30 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+27D,637,Channel 31 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+27F,639,Channel 32 Relay 2 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+281,641,Channel 1 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+282,642,Channel 2 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+283,643,Channel 3 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+284,644,Channel 4 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+285,645,Channel 5 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+286,646,Channel 6 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+287,647,Channel 7 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+288,648,Channel 8 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+289,649,Channel 9 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+28A,650,Channel 10 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+28B,651,Channel 11 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+28C,652,Channel 12 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+28D,653,Channel 13 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+28E,654,Channel 14 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+28F,655,Channel 15 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+290,656,Channel 16 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+291,657,Channel 17 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+292,658,Channel 18 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+293,659,Channel 19 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+294,660,Channel 20 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+295,661,Channel 21 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+296,662,Channel 22 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+297,663,Channel 23 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+298,664,Channel 24 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+299,665,Channel 25 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+29A,666,Channel 26 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+29B,667,Channel 27 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+29C,668,Channel 28 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+29D,669,Channel 29 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+29E,670,Channel 30 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+29F,671,Channel 31 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+2A0,672,Channel 32 Relay 2 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+2A1,673,Channel 1 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2A2,674,Channel 2 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2A3,675,Channel 3 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2A4,676,Channel 4 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2A5,677,Channel 5 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2A6,678,Channel 6 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2A7,679,Channel 7 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2A8,680,Channel 8 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2A9,681,Channel 9 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2AA,682,Channel 10 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2AB,683,Channel 11 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2AC,684,Channel 12 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2AD,685,Channel 13 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2AE,686,Channel 14 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2AF,687,Channel 15 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2B0,688,Channel 16 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2B1,689,Channel 17 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2B2,690,Channel 18 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2B3,691,Channel 19 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2B4,692,Channel 20 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2B5,693,Channel 21 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2B6,694,Channel 22 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2B7,695,Channel 23 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2B8,696,Channel 24 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2B9,697,Channel 25 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2BA,698,Channel 26 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2BB,699,Channel 27 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2BC,700,Channel 28 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2BD,701,Channel 29 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2BE,702,Channel 30 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2BF,703,Channel 31 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2C0,704,Channel 32 Relay 3 On/Off,,R/W,16,ENUMERATION,"0 – 1, 0 means off, 1 means on"
+2C1,705,Channel 1 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2C2,706,Channel 2 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2C3,707,Channel 3 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2C4,708,Channel 4 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2C5,709,Channel 5 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2C6,710,Channel 6 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2C7,711,Channel 7 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2C8,712,Channel 8 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2C9,713,Channel 9 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2CA,714,Channel 10 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2CB,715,Channel 11 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2CC,716,Channel 12 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2CD,717,Channel 13 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2CE,718,Channel 14 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2CF,719,Channel 15 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2D0,720,Channel 16 Relay 3Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2D1,721,Channel 17 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2D2,722,Channel 18 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2D3,723,Channel 19 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2D4,724,Channel 20 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2D5,725,Channel 21 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2D6,726,Channel 22 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2D7,727,Channel 23 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2D8,728,Channel 24 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2D9,729,Channel 25 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2DA,730,Channel 26 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2DB,731,Channel 27 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2DC,732,Channel 28 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2DD,733,Channel 29 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2DE,734,Channel 30 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2DF,735,Channel 31 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2E0,736,Channel 32 Relay 3 Rise/Fall,,R/W,16,ENUMERATION,"0 - 1 ,0 means low, 1 means high"
+2E1,737,Channel 1 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2E3,739,Channel 2 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2E5,741,Channel 3 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2E7,743,Channel 4 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2E9,745,Channel 5 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2EB,747,Channel 6 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2ED,749,Channel 7 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2EF,751,Channel 8 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2F1,753,Channel 9 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2F3,755,Channel 10 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2F5,757,Channel 11 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2F7,759,Channel 12 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2F9,761,Channel 13 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2FB,763,Channel 14 Relay 3 Set Point ,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2FD,765,Channel 15 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+2FF,767,Channel 16 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+301,769,Channel 17 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+303,771,Channel 18 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+305,773,Channel 19 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+307,775,Channel 20 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+309,777,Channel 21 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+30B,779,Channel 22 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+30D,781,Channel 23 Relay 3 Set Point ,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+30F,783,Channel 24 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+311,785,Channel 25 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+313,787,Channel 26 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+315,789,Channel 27 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+317,791,Channel 28 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+319,793,Channel 29 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+31B,795,Channel 30 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+31D,797,Channel 31 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+31F,799,Channel 32 Relay 3 Set Point,,R/W,32,FLOAT,Any number 65000 or less and higher than 0
+321,801,Channel 1 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+322,802,Channel 2 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+323,803,Channel 3 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+324,804,Channel 4 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+325,805,Channel 5 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+326,806,Channel 6 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+327,807,Channel 7 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+328,808,Channel 8 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+329,809,Channel 9 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+32A,810,Channel 10 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+32B,811,Channel 11 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+32C,812,Channel 12 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+32D,813,Channel 13 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+32E,814,Channel 14 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+32F,815,Channel 15 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+330,816,Channel 16 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+331,817,Channel 17 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+332,818,Channel 18 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+333,819,Channel 19 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+334,820,Channel 20 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+335,821,Channel 21 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+336,822,Channel 22 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+337,823,Channel 23 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+338,824,Channel 24 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+339,825,Channel 25 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+33A,826,Channel 26 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+33B,827,Channel 27 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+33C,828,Channel 28 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+33D,829,Channel 29 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+33E,830,Channel 30 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+33F,831,Channel 31 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+340,832,Channel 32 Relay 3 Latch/Unlatch,,R/W,16,ENUMERATION,"0 - 1 ,0 means unlatch, 1 means latch"
+Modbus and Build Data,,,,,,,
+1771,6001,Modbus Address,,R,16,INTEGER,1 – 247
+1772,6002,Modbus Baud Rate,,R,16,INTEGER,Any Valid Baud Rate.  See Below.
+1773,6003,Month,,R,16,INTEGER,1 – 12
+1774,6004,Day,,R,16,INTEGER,1 – 31
+1775,6005,Year,,R,16,INTEGER,2009 – 
+1776,6006,Serial Number Character,,R,16,ENUMERATION,0 – 52 See Serial Number below
+1777,6007,Serial Number,,R,32,LONG INT,1 – 99999
+Settings in Startup Menu,,,,,,,
+177B,6011,Restore to Factory Default,,R,16,ENUMERATION,When read will be 0.
+177C,6012,Relay 3 as Fault Relay,,R,16,ENUMERATION,"0 – 1, 0 means normal relay, 1 means Fault Relay"
+177D,6013,Relay 1 Fail Safe,,R,16,ENUMERATION,"0 – 1, 0 means not Fail Safe, 1 means Fail Safe"
+177E,6014,Relay 2 Fail Safe,,R,16,ENUMERATION,"0 – 1, 0 means not Fail Safe, 1 means Fail Safe"
+177F,6015,Relay 3 Fail Safe,,R,16,ENUMERATION,"0 – 1, 0 means not Fail Safe, 1 means Fail Safe"
+1780,6016,N/A,,R,16,,Read as 0.
+1781,6017,Fault Terminal Fail Safe,,R,16,ENUMERATION,"0 – 1, 0 means not Fail Safe, 1 means Fail Safe"
+1782,6018,Radio Timeout,,R,16,INTEGER,6-255.  This is the timeout in minutes.
+1783,6019,Network Channel,,R,16,INTEGER,1—78
+1784,6020,Primary Secondary,,R,16,ENUMERATION,"0 – 1, 0  means Primary, 1 means Secondary."
+Relays in Alarm State,,,,,,,
+1785,6021,Relay 1 is in Alarm,,R,16,ENUMERATION,"0 – 1, 0 means not in Alarm, 1 means in Alarm"
+1786,6022,Relay 2 is in Alarm,,R,16,ENUMERATION,"0 – 1, 0 means not in Alarm, 1 means in Alarm"
+1787,6023,Relay 3 is in Alarm,,R,16,ENUMERATION,"0 – 1, 0 means not in Alarm, 1 means in Alarm"
+Diagnostics Data,,,,,,,
+2704,9988,Reset,,R/W,16,INTEGER,"Read 0. If user sets to 1, resets the unit."
+2705,9989,Serial Receive Good Count,,R,16,UINT,0 – 65535
+2706,9990,Serial Receive Error Count,,R,16,UINT,0 – 65535
+2707,9991,Serial Transmit Good Count,,R,16,UINT,0 – 65535
+2708,9992,Serial Transmit Error Count,,R,16,UINT,0 – 65535
+2709,9993,Radio Receive Good Count,,R,16,UINT,0 – 65535
+270A,9994,Radio Receive Error Count,,R,16,UINT,0 – 65535
+270B,9995,Radio Transmit Good Count,,R,16,UINT,0 – 65535
+270C,9996,Radio Transmit Error Count,,R,16,UINT,0 – 65535
+270D,9997,Uptime Days,,R,16,UINT,0 – 65535
+270E,9998,Uptime Hours,,R,16,UINT,0 – 65535
+270F,9999,Uptime Minutes,,R,16,UINT,0 – 65535
+,,,,,,,
+MODE SENSOR,MODE,,,,,,Valid Baud Rates
+0,NORMAL,,,,,,4800
+1,NULL,,MODE,,,,9600
+2,CALIBRATION,,NORMAL,,,,19200
+3,RELAY,,NULL,,,,
+4,Radio ADD,,CAL,,,GAS TYPE NUM,GAS
+5,Diagnostic/ Batt,,,,,0,H2S
+6,Advanced Menu,,ADDR,,,1,SO2
+7,Admin Menu,,VOLTAGE,,,2,O2
+,,,OFF,,,3,CO
+Serial Number Char,Char,,RESTART,,,4,CL2
+,,,,,,5,CO2
+1,A,,,,,6,LEL
+2,B,,,,,7,VOC
+3,C,,,,,8,FEET
+4,D,,,,,9,HCl
+5,E,,,,,10,NH3
+6,F,,,,,11,H2 
+7,G,,,,,12,ClO2
+8,H,,,,,13,HCN
+9,I,,,,,14,F2
+10,J,,,,,15,HF
+11,K,,,,,16,CH2O
+12,L,,,,,17,NO2
+13,M,,,,,18,O3
+14,N,,,,,19,INCHES
+15,O,,,,,20,4-20
+16,P,,,,,21,Not Specified
+17,Q,,,,,22,Cº
+18,R,,,,,23,Fº
+19,S,,,,,                        24..N,Future Gases
+20,T,,,,,,
+21,U,,,,,SENSOR TYPE NUM,SENSOR
+22,V,,,,,,
+23,W,,,,,0,EC
+24,X,,,,,1,IR
+25,Y,,,,,2,CB
+26,Z,,,,,3,MOS
+27,AA,,,,,4,PID
+28,AB,,,,,5,TANK
+29,AC,,,,,6,4-20
+30,AD,,,,,7,SWITCH
+31,AE,,,,,8,Unknown
+32,AF,,,,,30,WF190
+33,AG,,,,,31,None Selected
+34,AH,,,,,,
+35,AI,,,,,FAULT,FAULT
+36,AJ,,,,,0,NONE
+37,AK,,,,,1,Sensor Timeout
+38,AL,,,,,2,Future Error
+39,AM,,,,,3,Future Error
+40,AN,,,,,4,ADC not responding 
+41,AO,,,,,5,Null Failed
+42,AP,,,,,6,Cal Failed
+43,AQ,,,,,7,Future Error
+44,AR,,,,,8,Two Sensors Same Address
+45,AS,,,,,9,Sensor Radio Timeout
+46,AT,,,,,10,"When Sensor is wired, it means no sensor is connected"
+47,AU,,,,,11,Future Error
+48, AV ,,,,,12,Future Error
+49,AW,,,,,13,Unspecified Error on sensor unit.  Shown only on Monitor
+50,AX,,,,,14,No Primary Monitor at Sensor Head
+51,AY,,,,,15,Monitor Fault
+52,AZ,,,,,,

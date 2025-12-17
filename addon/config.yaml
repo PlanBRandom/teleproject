@@ -1,0 +1,67 @@
+name: "OI Gas Monitor Bridge"
+version: "1.0.0"
+slug: "oi_gas_monitor"
+description: "Modbus and Radio bridge for OI-7530, OI-7010, and OI-7032 gas monitors"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+init: false
+uart: true
+ports:
+  8099/tcp: 8099
+ports_description:
+  8099/tcp: "Optional web interface (future)"
+options:
+  connection_mode: "modbus_rtu"
+  modbus:
+    port: "/dev/ttyUSB0"
+    baudrate: 9600
+  radio:
+    enabled: false
+    port: "/dev/ttyUSB1"
+    baudrate: 9600
+  devices:
+    - slave_id: 1
+      name: "OI-7530-1"
+      model: "7530"
+    - slave_id: 2
+      name: "OI-7530-2"
+      model: "7530"
+  mqtt:
+    broker: "core-mosquitto"
+    port: 1883
+    username: ""
+    password: ""
+    discovery_prefix: "homeassistant"
+  poll_interval: 30
+  active_channels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
+schema:
+  connection_mode: list(modbus_rtu|modbus_tcp|radio_direct|hybrid)
+  modbus:
+    port: str
+    baudrate: int
+    tcp_host: str?
+    tcp_port: int?
+  radio:
+    enabled: bool
+    port: str
+    baudrate: int
+    protocol: list(oi_wireless|custom)?
+  devices:
+    - slave_id: int
+      name: str
+      model: list(7530|7010|7032)
+      radio_channels: [int]?
+  mqtt:
+    broker: str
+    port: int
+    username: str?
+    password: str?
+    discovery_prefix: str
+  poll_interval: int
+  active_channels: [int]
+  log_level: list(debug|info|warning|error)?
+image: "ghcr.io/{arch}-oi-gas-monitor"

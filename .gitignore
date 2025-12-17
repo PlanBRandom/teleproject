@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+env/
+ENV/
+
+# Secrets and credentials
+secrets.yaml
+*.key
+*.pem
+.env
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config overrides (keep templates)
+config.local.yaml
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Generated dashboards (optional, can commit)
+# configs/lovelace/*.yaml
+
+# ESPHome generated files
+.esphome/

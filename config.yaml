@@ -1,0 +1,55 @@
+# OI-7530/7010 Modbus to MQTT Bridge Configuration
+
+# Modbus connection settings
+modbus:
+  type: rtu  # 'rtu' for serial or 'tcp' for ethernet
+  
+  # RTU (Serial) settings - for USB/RS485 converter
+  port: COM10  # Windows: COM3, Linux: /dev/ttyUSB0, /dev/ttyAMA0
+  baudrate: 9600
+  bytesize: 8
+  parity: N  # N=None, E=Even, O=Odd
+  stopbits: 1
+  
+  # TCP settings - for ethernet/wifi connections (ESP32)
+  host: 192.168.1.100
+  tcp_port: 502
+  
+  # Common settings
+  slave_id: 1  # Modbus device address
+  timeout: 3   # Connection timeout in seconds
+  retries: 3   # Number of retry attempts
+
+# MQTT broker settings
+mqtt:
+  broker: localhost  # MQTT broker address (Home Assistant IP or localhost)
+  port: 1883
+  username: null  # MQTT username (optional)
+  password: null  # MQTT password (optional)
+  
+  # Device identification
+  device_name: OI-7032 Gas Monitor
+  device_id: oi7032_01
+  
+  # Topic configuration
+  base_topic: homeassistant
+  client_id: oi7530_modbus_bridge
+  
+  # Home Assistant autodiscovery
+  discovery_enabled: true
+  discovery_prefix: homeassistant
+
+# Polling configuration
+poll_interval: 5.0  # seconds between polling cycles
+
+# Register groups to poll
+poll_sensor_readings: true      # Gas sensor readings (channels 1-32)
+poll_configuration: false       # Configuration registers (radio addresses)
+poll_diagnostics: true          # Status, alarms, faults
+
+# Register map file
+register_map: register_maps/7500-RegMap.csv
+
+# Logging
+log_level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+log_file: null  # Optional log file path (null = stdout only)
