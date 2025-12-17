@@ -1,6 +1,19 @@
-# OI-7530/7010 Modbus to MQTT Bridge
+# OI-7530/7010/7032 Modbus to MQTT Bridge
 
-A comprehensive Python application for reading gas sensor data from OI-7530 and OI-7010 industrial gas monitors via Modbus RTU/TCP and publishing to MQTT with Home Assistant autodiscovery support.
+Complete Modbus-to-MQTT bridge for OI Analytical gas monitors with wireless sensor support via Laird radio modules.
+
+## 🚀 Quick Install (Home Assistant Add-on)
+
+**One-Click Installation:**
+
+[![Add Repository to Home Assistant][repository-badge]][repository-url]
+
+1. Click the button above to add the repository
+2. Install "OI Gas Monitor Bridge" from the add-on store
+3. Configure your settings (Modbus port, MQTT credentials)
+4. Start the add-on
+
+📖 **Detailed Instructions**: [ADDON_INSTALL.md](ADDON_INSTALL.md)
 
 ## Features
 
@@ -323,8 +336,17 @@ This project is provided as-is for educational and personal use.
 ## Support
 
 For issues or questions:
-- Check the [Troubleshooting](#troubleshooting) section
+- **Documentation**: See [ADDON_INSTALL.md](ADDON_INSTALL.md) for add-on installation
+- **Issues**: https://github.com/PlanBRandom/teleproject/issues
+- **Hardware Setup**: See hardware test scripts and documentation
 - Review logs with `-v` verbose flag
+
+## License
+
+MIT License - See LICENSE file
+
+[repository-badge]: https://img.shields.io/badge/Add%20Repository-41BDF5?logo=home-assistant&style=for-the-badge
+[repository-url]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FPlanBRandom%2Fteleproject
 - Open an issue with detailed error messages and configuration
 
 ---

@@ -2,12 +2,14 @@ name: "OI Gas Monitor Bridge"
 version: "1.0.0"
 slug: "oi_gas_monitor"
 description: "Modbus and Radio bridge for OI-7530, OI-7010, and OI-7032 gas monitors"
+url: "https://github.com/PlanBRandom/teleproject"
 arch:
   - armhf
   - armv7
   - aarch64
   - amd64
   - i386
+image: "ghcr.io/planbrandon/{arch}-oi-gas-monitor"
 init: false
 uart: true
 ports:
