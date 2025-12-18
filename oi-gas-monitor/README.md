@@ -17,16 +17,16 @@ Complete monitoring solution for OI-7530, OI-7010, and OI-7032 gas monitors.
 
 ### Method 1: Local Add-on (Development)
 
-1. Copy the entire `oi-7500-pipeline` folder to your Home Assistant:
+1. Copy the entire `oi-gas-monitor` folder to your Home Assistant:
 ```bash
 # From your Windows machine
-scp -r d:\oi-7500-pipeline root@homeassistant.local:/addons/
+scp -r /path/to/oi-gas-monitor root@homeassistant.local:/addons/
 ```
 
 2. In Home Assistant:
 - Go to **Settings** → **Add-ons** → **Add-on Store**
 - Click menu (⋮) → **Repositories**
-- Add: `file:///addons/oi-7500-pipeline`
+- Add: `file:///addons/oi-gas-monitor`
 - Install "OI Gas Monitor Bridge"
 
 ### Method 2: GitHub Repository (Recommended)
@@ -40,7 +40,7 @@ your-repo/
 │   ├── run.sh
 │   └── pipeline/
 │       └── (all Python files)
-└── repository.yaml
+└── repository.json
 ```
 
 2. In Home Assistant:
@@ -218,8 +218,8 @@ dmesg | grep tty
 
 Test locally before deploying:
 ```bash
-# On your Windows machine
-cd d:\oi-7500-pipeline
+# On your development machine
+cd /path/to/teleproject
 python pipeline/main.py
 
 # Test radio receiver
