@@ -30,9 +30,9 @@ echo "Creating build package..."
 mkdir -p build/oi-gas-monitor
 
 # Copy files
-cp addon/config.yaml build/oi-gas-monitor/
-cp addon/Dockerfile build/oi-gas-monitor/
-cp addon/run.sh build/oi-gas-monitor/
+cp oi-gas-monitor/config.yaml build/oi-gas-monitor/
+cp oi-gas-monitor/Dockerfile build/oi-gas-monitor/
+cp oi-gas-monitor/run.sh build/oi-gas-monitor/
 cp -r pipeline build/oi-gas-monitor/
 
 # Create icon
