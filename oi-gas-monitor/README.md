@@ -40,7 +40,7 @@ your-repo/
 │   ├── run.sh
 │   └── pipeline/
 │       └── (all Python files)
-└── repository.yaml
+└── repository.json
 ```
 
 2. In Home Assistant:
@@ -218,8 +218,8 @@ dmesg | grep tty
 
 Test locally before deploying:
 ```bash
-# On your Windows machine
-cd d:\oi-7500-pipeline
+# On your development machine
+cd /path/to/teleproject
 python pipeline/main.py
 
 # Test radio receiver
