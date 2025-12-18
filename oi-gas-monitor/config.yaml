@@ -66,4 +66,3 @@ schema:
   poll_interval: int
   active_channels: [int]
   log_level: list(debug|info|warning|error)?
-image: "ghcr.io/{arch}-oi-gas-monitor"
