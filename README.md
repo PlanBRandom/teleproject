@@ -160,17 +160,22 @@ oi-7500-pipeline/
 │   ├── main.py              # Main application
 │   ├── register.py          # Register map parser
 │   ├── modbus_client.py     # Modbus RTU/TCP client
-│   └── mqtt.py              # MQTT publisher with HA discovery
+│   ├── mqtt.py              # MQTT publisher with HA discovery
+│   └── ml_analytics.py      # ML analytics and predictions
 ├── register_maps/
 │   ├── 7500-RegMap.csv      # OI-7530 register definitions
 │   └── 7500for python.csv   # Simplified register map
 ├── configs/
 │   └── lovelace/            # Generated dashboards
+├── ml_data/                 # ML training data storage
+├── ml_reports/              # ML analysis reports
 ├── test/                    # Unit tests
 ├── config.yaml              # Main configuration
 ├── config.esphome.yaml      # ESP32 configuration
 ├── secrets.yaml             # Credentials (don't commit!)
 ├── generate_channels.py     # Dashboard generator
+├── train_ml_models.py       # ML training script
+├── ml_live_monitor.py       # Real-time ML monitoring
 └── requirements.txt         # Python dependencies
 ```
 
@@ -252,6 +257,9 @@ python -m pipeline.modbus_client
 
 # Test MQTT publisher (requires broker)
 python -m pipeline.mqtt
+
+# Test ML analytics
+python -m pipeline.ml_analytics
 ```
 
 ## Troubleshooting
@@ -284,6 +292,181 @@ python -m pipeline.mqtt
 - Check signal strength
 - Look at serial monitor during boot: `esphome logs config.esphome.yaml`
 
+## 🧠 Machine Learning & Predictive Analytics
+
+### Features
+
+**Sensor Degradation Prediction**
+- Automatic drift detection and tracking
+- Predictive maintenance scheduling
+- Calculates days until calibration needed
+- Confidence scoring for predictions
+
+**Real-Time Anomaly Detection**
+- Statistical anomaly detection (Z-score + IQR)
+- Configurable sensitivity thresholds
+- Automatic baseline learning
+- Anomaly scoring and classification
+
+**Response Time Analysis**
+- Sensor performance monitoring
+- Response time degradation detection
+- Event correlation analysis
+
+**Data Collection & Storage**
+- Automatic sensor data archiving
+- Efficient batch processing
+- Historical data management
+- JSON-based storage format
+
+### Quick Start - ML Analytics
+
+#### 1. Train Models on Historical Data
+
+```powershell
+# Run comprehensive analysis on 30 days of data
+python train_ml_models.py --days 30 --export-report
+
+# With custom sensitivity
+python train_ml_models.py --days 90 --anomaly-sensitivity 2.5 --export-report
+
+# Specify output location
+python train_ml_models.py --days 60 --output ml_reports/ --export-report
+```
+
+#### 2. Real-Time ML Monitoring
+
+```powershell
+# Start live monitoring with ML
+python ml_live_monitor.py --config config.yaml
+
+# With verbose output
+python ml_live_monitor.py --config config.yaml --verbose
+
+# Custom anomaly detection
+python ml_live_monitor.py --anomaly-sensitivity 2.0
+```
+
+#### 3. Analyze Specific Metrics
+
+```python
+from pipeline.ml_analytics import MLAnalyticsPipeline
+
+# Initialize pipeline
+pipeline = MLAnalyticsPipeline()
+
+# Run comprehensive analysis
+analysis = pipeline.run_analysis(days=30)
+
+# Check maintenance predictions
+for channel, prediction in analysis['maintenance_predictions'].items():
+    if prediction.get('urgency') == 'critical':
+        print(f"Channel {channel} needs immediate calibration!")
+        print(f"Days remaining: {prediction['days_to_calibration']:.1f}")
+```
+
+### ML Configuration
+
+Add to your `config.yaml`:
+
+```yaml
+ml:
+  enabled: true
+  storage_path: ml_data
+  anomaly_detection:
+    enabled: true
+    sensitivity: 3.0        # Standard deviations for anomaly threshold
+    window_size: 100        # Baseline calculation window
+  
+  maintenance_prediction:
+    enabled: true
+    drift_threshold: 0.1    # 10% drift triggers calibration alert
+    analysis_interval: 24   # Hours between analyses
+  
+  batch_save_interval: 100  # Save data every N readings
+```
+
+### ML Output Reports
+
+Training generates comprehensive reports:
+
+```
+ml_reports/
+├── ml_analysis_report_20251219_143022.json  # Detailed JSON report
+└── ml_summary_20251219_143022.txt           # Human-readable summary
+```
+
+**Report Contents:**
+- Sensor drift rates and trends
+- Days until calibration needed per channel
+- Maintenance urgency levels (critical/high/medium/low)
+- Response time analysis
+- Anomaly detection baselines
+- Statistical summaries
+
+### Example ML Output
+
+```
+🔴 Channel 12: CRITICAL  | Days to cal:    3.2 | Drift: +0.0234/day
+   → Immediate calibration required
+
+🟠 Channel  5: HIGH      | Days to cal:   18.5 | Drift: +0.0089/day
+   → Schedule calibration within 1 week
+
+🟡 Channel  8: MEDIUM    | Days to cal:   67.3 | Drift: +0.0021/day
+   → Plan calibration within 1 month
+
+🟢 Channel  1: LOW       | Days to cal:  342.1 | Drift: +0.0003/day
+   → Monitor - no immediate action needed
+```
+
+### Advanced ML Use Cases
+
+**1. Predictive Maintenance Dashboard**
+```python
+# Generate maintenance schedule
+analysis = pipeline.run_analysis(days=90)
+critical_channels = [
+    ch for ch, pred in analysis['maintenance_predictions'].items()
+    if pred.get('urgency') in ['critical', 'high']
+]
+print(f"Channels requiring immediate attention: {critical_channels}")
+```
+
+**2. Automated Alerting**
+```python
+# Real-time anomaly monitoring
+result = pipeline.process_reading(channel=5, value=12.3)
+if result['anomaly']['is_anomaly']:
+    send_alert(f"Anomaly on Channel 5: {result['anomaly']['reason']}")
+```
+
+**3. Trend Analysis**
+```python
+# Analyze drift patterns
+from pipeline.ml_analytics import SensorDegradationPredictor
+
+predictor = SensorDegradationPredictor()
+drift_info = predictor.calculate_drift(df, channel=3)
+print(f"Drift rate: {drift_info['drift_rate_per_day']:.4f} units/day")
+```
+
+### Data Storage Structure
+
+ML data is stored in JSON batches:
+
+```json
+{
+  "timestamp": "2025-12-19T14:30:22",
+  "channel": 5,
+  "value": 10.23,
+  "metadata": {
+    "temperature": 22.5,
+    "humidity": 45.2
+  }
+}
+```
+
 ## Use Cases
 
 ### Home Automation
@@ -291,18 +474,25 @@ python -m pipeline.mqtt
 - Integration with ventilation systems
 - Historical data logging and analysis
 - Mobile notifications via Home Assistant
+- **ML-powered predictive maintenance**
+- **Anomaly detection for early leak warning**
 
 ### Industrial Monitoring
 - Multi-zone gas concentration tracking
 - Compliance data collection
 - Remote monitoring of hazardous areas
 - Wireless sensor flexibility
+- **Predictive sensor calibration scheduling**
+- **Automated drift detection and correction**
+- **Performance trend analysis**
 
 ### Laboratory
 - Fume hood monitoring
 - Chemical storage safety
 - Clean room air quality
 - Research data logging
+- **Sensor degradation tracking**
+- **Response time analysis for QA**
 
 ## Contributing
 
