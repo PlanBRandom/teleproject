@@ -21,6 +21,7 @@ Complete Modbus-to-MQTT bridge for OI Analytical gas monitors with wireless sens
 - **Direct USB/RS485**: Run on any computer with RS485-to-USB converter
 - **ESP32 + ESPHome**: Wireless monitoring via WiFi using ESP32-WROOM + MAX485
 - **Arduino**: Portable monitoring with Arduino boards
+- **Laird Radio**: Direct wireless sensor monitoring via Laird WireFree modules
 
 🔄 **Robust Communication**
 - Modbus RTU (serial) and TCP support
@@ -39,6 +40,15 @@ Complete Modbus-to-MQTT bridge for OI Analytical gas monitors with wireless sens
 - Wired sensor inputs
 - Diagnostic registers (alarms, faults, status)
 - Configuration registers (radio addresses)
+- Real-time WireFree Gen II packet decoding
+- Battery level monitoring and alerts
+
+🧠 **Machine Learning & Radio Intelligence**
+- Real-time anomaly detection on radio sensor data
+- Sensor health tracking (battery, signal, faults)
+- Predictive maintenance scheduling
+- Automatic fault alerting
+- Historical data collection for ML training
 
 ## Hardware Requirements
 
@@ -170,12 +180,14 @@ oi-7500-pipeline/
 ├── ml_data/                 # ML training data storage
 ├── ml_reports/              # ML analysis reports
 ├── test/                    # Unit tests
+├── test_data/               # Sample radio packets and test data
 ├── config.yaml              # Main configuration
 ├── config.esphome.yaml      # ESP32 configuration
 ├── secrets.yaml             # Credentials (don't commit!)
 ├── generate_channels.py     # Dashboard generator
 ├── train_ml_models.py       # ML training script
 ├── ml_live_monitor.py       # Real-time ML monitoring
+├── decode_radio_packets.py  # Laird radio packet decoder
 └── requirements.txt         # Python dependencies
 ```
 
@@ -261,6 +273,72 @@ python -m pipeline.mqtt
 # Test ML analytics
 python -m pipeline.ml_analytics
 ```
+
+## 📡 Radio Monitoring with ML
+
+### Live Radio + ML Analytics
+
+Monitor wireless sensors with real-time ML analytics:
+
+```powershell
+# Start radio monitor with ML (recommended)
+D:/oi-7500-pipeline/.venv/Scripts/python.exe radio_ml_monitor.py --port COM7
+
+# Adjust anomaly sensitivity
+D:/oi-7500-pipeline/.venv/Scripts/python.exe radio_ml_monitor.py --port COM7 --anomaly-sensitivity 2.5
+
+# Custom low battery threshold
+D:/oi-7500-pipeline/.venv/Scripts/python.exe radio_ml_monitor.py --port COM7 --low-battery-threshold 3.5
+
+# Disable ML (raw monitoring only)
+D:/oi-7500-pipeline/.venv/Scripts/python.exe radio_ml_monitor.py --port COM7 --disable-ml
+```
+
+**Features:**
+- ✅ Decodes OI WireFree Gen II protocol packets
+- ✅ Real-time anomaly detection
+- ✅ Battery level monitoring
+- ✅ Fault detection and alerting
+- ✅ Automatic data collection for ML training
+- ✅ Sensor health tracking
+
+**Decoded Information:**
+- Transmitter address/channel number
+- Gas reading with units
+- Gas type (H2S, CO, O2, etc.)
+- Sensor type (EC, IR, PID, etc.)
+- Operating mode (Normal, Calibration, etc.)
+- Battery voltage
+- Fault codes
+
+### Packet Decoding (Advanced)
+
+Low-level packet analysis:
+
+```powershell
+# Decode from captured hex file
+D:/oi-7500-pipeline/.venv/Scripts/python.exe decode_radio_packets.py --file test_data/radio_packets_sample.txt
+
+# Live decode from serial port
+D:/oi-7500-pipeline/.venv/Scripts/python.exe decode_radio_packets.py --port COM7 --live
+
+# Verbose output showing all fields
+D:/oi-7500-pipeline/.venv/Scripts/python.exe decode_radio_packets.py --file test_data/radio_packets_sample.txt --verbose
+
+# Export decoded data to JSON
+D:/oi-7500-pipeline/.venv/Scripts/python.exe decode_radio_packets.py --file test_data/radio_packets_sample.txt --output decoded.json
+```
+
+**Protocol Details:**
+- **Protocol 0**: Monitor control packets
+- **Protocol 1**: Standard sensor data (most common)
+  - Bytes 0-1: Transmitter address (channel)
+  - Bytes 3-6: 32-bit float sensor reading
+  - Byte 7: Sensor type and mode
+  - Byte 8: Battery reading
+  - Byte 9: Gas type and battery scale
+  - Byte 10: Fault indicator
+  - Byte 11: Checksum
 
 ## Troubleshooting
 
