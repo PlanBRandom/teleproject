@@ -49,7 +49,7 @@ def main():
     
     # Configure for Laird LT1110 or RM024
     # Adjust COM port as needed
-    receiver = RadioReceiver("COM5", baudrate=9600, api_mode=True)
+    receiver = RadioReceiver("COM7", baudrate=115200, api_mode=True)
     
     if not receiver.connect():
         print("Failed to connect to radio module")
@@ -76,8 +76,8 @@ def main():
             print("  Signal: Poor")
     
     # Set RF channel (OI default is 5)
-    print(f"\nSetting RF Channel to 5 (OI default)...")
-    if receiver.set_rf_channel(5):
+    print(f"\nSetting RF Channel to 25 (OI default)...")
+    if receiver.set_rf_channel(25):
         print("✓ Channel set successfully")
     
     # Register callback and start listening
