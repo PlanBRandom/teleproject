@@ -601,6 +601,91 @@ This project is provided as-is for educational and personal use.
 - [PyModbus](https://pymodbus.readthedocs.io/)
 - [Paho MQTT](https://www.eclipse.org/paho/clients/python/)
 
+## Docker Image Builds and CI/CD
+
+### Automated Builds
+
+This repository uses GitHub Actions to automatically build and publish Docker images for the Home Assistant add-on. Images are built for multiple architectures and published to the GitHub Container Registry (ghcr.io).
+
+**Supported Architectures:**
+- `armhf` - ARM 32-bit (Raspberry Pi Zero, Pi 1)
+- `armv7` - ARM 32-bit v7 (Raspberry Pi 2, Pi 3)
+- `aarch64` - ARM 64-bit (Raspberry Pi 3/4/5 with 64-bit OS)
+- `amd64` - x86 64-bit (Intel/AMD processors)
+- `i386` - x86 32-bit (older Intel/AMD processors)
+
+**Build Triggers:**
+- **Push to main branch**: Builds images tagged with the version from `config.yaml` and `latest`
+- **Version tags**: Pushing a tag like `v1.0.0` builds images with that specific version
+- **Manual trigger**: Can be triggered manually from the Actions tab
+
+### Image Naming Convention
+
+Images are published to GitHub Container Registry with the following naming pattern:
+```
+ghcr.io/planbrandon/oi-gas-monitor-{arch}:{version}
+ghcr.io/planbrandon/oi-gas-monitor-{arch}:latest
+```
+
+Examples:
+- `ghcr.io/planbrandon/oi-gas-monitor-amd64:1.0.0`
+- `ghcr.io/planbrandon/oi-gas-monitor-aarch64:latest`
+
+### How to Trigger a Build
+
+**Automatic (Push to main):**
+```bash
+git add .
+git commit -m "Your changes"
+git push origin main
+```
+
+**Manual Trigger:**
+1. Go to the [Actions tab](https://github.com/PlanBRandom/teleproject/actions/workflows/build-addon.yml)
+2. Click "Run workflow"
+3. Select the branch and click "Run workflow"
+
+**Version Release:**
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+### Required GitHub Permissions
+
+The workflow uses `GITHUB_TOKEN` which is automatically provided by GitHub Actions with the following permissions:
+- `contents: read` - Read repository contents
+- `packages: write` - Push images to GitHub Container Registry (ghcr.io)
+
+No additional secrets or configuration is required.
+
+### Build Process Details
+
+The build workflow:
+1. Checks out the repository code
+2. Sets up QEMU for multi-architecture emulation
+3. Configures Docker Buildx for cross-platform builds
+4. Authenticates with GitHub Container Registry
+5. Extracts version from `oi-gas-monitor/config.yaml` or git tag
+6. Builds Docker image for each architecture using appropriate Home Assistant base images
+7. Pushes images with version and `latest` tags
+8. Adds standard OCI labels for image metadata
+
+### Verifying Build Status
+
+Check build status:
+- **GitHub Actions**: [View workflows](https://github.com/PlanBRandom/teleproject/actions)
+- **Container Registry**: [View packages](https://github.com/PlanBRandom/teleproject/pkgs/container/oi-gas-monitor)
+
+### Troubleshooting Build Issues
+
+If builds fail:
+1. Check the workflow logs in the Actions tab
+2. Verify `oi-gas-monitor/config.yaml` has valid version format
+3. Ensure all dependencies in `requirements.txt` are available
+4. Check that `pipeline/` directory contains all required modules
+5. Verify Dockerfile syntax is correct
+
 ## Support
 
 For issues or questions:

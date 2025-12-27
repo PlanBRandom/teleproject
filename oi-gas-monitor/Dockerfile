@@ -15,7 +15,7 @@ RUN pip3 install --no-cache-dir \
 
 # Copy application files
 COPY pipeline /app/pipeline
-COPY run.sh /app/run.sh
+COPY oi-gas-monitor/run.sh /app/run.sh
 RUN chmod a+x /app/run.sh
 
 WORKDIR /app
