@@ -37,7 +37,7 @@ def test_radio():
     is_primary = mode_input.startswith('p')
     
     print(f"\nConnecting to {port}...")
-    receiver = RadioReceiver(port, baudrate=9600, api_mode=True)
+    receiver = RadioReceiver(port, baudrate=115200, api_mode=True)
     
     if not receiver.connect():
         print("✗ Failed to connect to radio")

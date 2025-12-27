@@ -64,12 +64,14 @@ def configure_radio(port, network_channel, is_primary=False, baud=9600):
         
         # Configure radio
         commands = [
-            (f'ATCN {network_channel}\r', f'Set Network Channel to {network_channel}'),
-            ('ATSY 37\r', 'Set System ID to 37 (OI standard)'),
-            (f'ATSP {0 if is_primary else 1}\r', 
+            (f'ATDN{network_channel}\r', f'Set Network Channel to {network_channel}'),
+            ('ATSY37\r', 'Set System ID to 37 (OI standard)'),
+            (f'ATCE{1 if is_primary else 0}\r',
+             'Set Server Mode ' + ('ON (primary monitor)' if is_primary else 'OFF (secondary)')),
+            (f'ATSP{0 if is_primary else 1}\r', 
              'Set Sniff Permit ' + ('OFF (primary)' if is_primary else 'ON (secondary)')),
-            ('ATAP 1\r', 'Enable API mode (0x7E frames)'),
-            (f'ATBD {baud_code}\r', f'Set baud rate to {baud}'),
+            ('ATAP1\r', 'Enable API mode (0x7E frames)'),
+            (f'ATBD{baud_code}\r', f'Set baud rate to {baud}'),
             ('ATWR\r', 'Write configuration to EEPROM'),
         ]
         
@@ -92,8 +94,9 @@ def configure_radio(port, network_channel, is_primary=False, baud=9600):
         if enter_command_mode(ser):
             
             queries = [
-                ('ATCN?\r', 'Network Channel'),
+                ('ATDN?\r', 'Network Channel'),
                 ('ATSY?\r', 'System ID'),
+                ('ATCE?\r', 'Server Mode'),
                 ('ATSP?\r', 'Sniff Permit'),
                 ('ATAP?\r', 'API Mode'),
             ]

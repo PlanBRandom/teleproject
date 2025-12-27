@@ -120,13 +120,17 @@ class RadioReceiver:
     - API mode: XBee/Laird frames with 0x7E start delimiter (recommended)
     - Transparent mode: Raw Gen2 packets (direct sensor to receiver)
     
+    Baud Rates:
+    - 115200: Monitor mode (Primary/Secondary monitor configuration)
+    - 9600: Sensor mode (direct sensor connection, legacy)
+    
     Laird Binary Commands:
     - 0xCC 0x22: Get RSSI (signal strength)
     - 0xCC 0x10: Get MAC address
     - 0xCC 0xC1 0x40 0x01 <ch>: Set RF channel
     """
     
-    def __init__(self, port: str, baudrate: int = 9600, api_mode: bool = True):
+    def __init__(self, port: str, baudrate: int = 115200, api_mode: bool = True):
         """
         Initialize radio receiver
         
