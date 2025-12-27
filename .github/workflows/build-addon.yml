@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         arch: [armhf, armv7, aarch64, amd64, i386]
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,7 +45,8 @@ jobs:
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
           else
-            VERSION=$(grep '^version:' oi-gas-monitor/config.yaml | awk '{print $2}' | tr -d '"')
+            VERSION=$(grep '^version:' oi-gas-monitor/config.yaml | \
+              awk '{print $2}' | tr -d '"')
           fi
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Building version: ${VERSION}"
@@ -92,7 +93,7 @@ jobs:
             BUILD_FROM=${{ steps.build-arch.outputs.build_from }}
           labels: |
             org.opencontainers.image.title=OI Gas Monitor Bridge
-            org.opencontainers.image.description=Modbus and Radio bridge for OI-7530, OI-7010, and OI-7032 gas monitors
+            org.opencontainers.image.description=Modbus and Radio bridge for OI gas monitors
             org.opencontainers.image.vendor=PlanBRandom
             org.opencontainers.image.source=${{ github.repositoryUrl }}
             org.opencontainers.image.version=${{ steps.version.outputs.version }}
