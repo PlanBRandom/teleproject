@@ -9,7 +9,7 @@ arch:
   - aarch64
   - amd64
   - i386
-image: "ghcr.io/planbrandon/{arch}-oi-gas-monitor"
+image: "ghcr.io/planbrandon/oi-gas-monitor-{arch}"
 init: false
 uart: true
 ports:
