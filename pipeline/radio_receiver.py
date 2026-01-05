@@ -130,18 +130,20 @@ class RadioReceiver:
     - 0xCC 0xC1 0x40 0x01 <ch>: Set RF channel
     """
     
-    def __init__(self, port: str, baudrate: int = 115200, api_mode: bool = True):
+    def __init__(self, port: str, baudrate: int = 115200, api_mode: bool = True, api_type: str = 'xbee'):
         """
         Initialize radio receiver
         
         Args:
             port: Serial port for radio module (e.g., COM4, /dev/ttyUSB1)
-            baudrate: Baud rate (default 9600 for OI radios)
-            api_mode: True for XBee/Laird API mode (0x7E frames), False for transparent
+            baudrate: Baud rate (default 115200 for RM024, 9600 for OI LT1110)
+            api_mode: True for API mode (framed packets), False for transparent (raw Gen2)
+            api_type: 'xbee' for 0x7E frames (XBee/Laird LT1110), 'rm024' for 0xCC frames (RM024 API Receive)
         """
         self.port = port
         self.baudrate = baudrate
         self.api_mode = api_mode
+        self.api_type = api_type.lower()
         self.serial = None
         self.running = False
         self.thread = None
@@ -227,15 +229,22 @@ class RadioReceiver:
             return False
     
     def send_test_packet(self, channel: int, reading: float, gas_type: int = 0, 
-                        sensor_type: int = 0, battery_voltage: float = 3.3) -> bool:
+                        sensor_type: int = 0, battery_voltage: float = 3.3, 
+                        sensor_id: str = None, battery_pct: int = None, fault_code: int = 0,
+                        unit_type: str = '6900', sensor_address: int = None) -> bool:
         """Send a test OI Gen2 Protocol 1 packet (Primary mode only).
         
         Args:
             channel: Channel number (1-32)
             reading: Sensor reading value
-            gas_type: Gas type code (0-27, default 0=H2S)
-            sensor_type: Sensor type code (0-3, default 0=OI-6000)
+            gas_type: Gas type code (0-10, default 0=H2S)
+            sensor_type: Sensor type code (0-31, default 0=EC)
             battery_voltage: Battery voltage (default 3.3V)
+            sensor_id: Sensor identifier for logging (optional)
+            battery_pct: Battery percentage 0-100 (overrides voltage)
+            fault_code: Fault code 0-15 (0=None, 8=Duplicate Address)
+            unit_type: '6900' or '6940' sensor unit type
+            sensor_address: Override transmitter address (default=channel)
             
         Returns:
             True if packet sent successfully
@@ -246,7 +255,7 @@ class RadioReceiver:
         
         try:
             # Build Protocol 1 packet (12 bytes minimum, no text)
-            transmitter_address = channel  # Use channel as transmitter address
+            transmitter_address = sensor_address if sensor_address else channel
             
             # Byte 0-1: Transmitter address (big-endian)
             addr_high = (transmitter_address >> 8) & 0xFF
@@ -263,6 +272,10 @@ class RadioReceiver:
             byte7 = (sensor_mode & 0x07) | ((sensor_type & 0x1F) << 3)
             
             # Byte 8: Battery reading (scaled)
+            if battery_pct is not None:
+                # Convert percentage to voltage (3.0V = 0%, 4.2V = 100%)
+                battery_voltage = 3.0 + (battery_pct / 100.0) * 1.2
+            
             if battery_voltage <= 2.55:
                 battery_scale = 0
                 battery_reading = int(battery_voltage * 10)
@@ -274,7 +287,6 @@ class RadioReceiver:
             byte9 = (gas_type & 0x7F) | ((battery_scale & 0x01) << 7)
             
             # Byte 10: Fault (4 bits) + Precision (3 bits) + Has text (1 bit)
-            fault_code = 0  # No fault
             precision = 2   # 2 decimal places
             has_text = 0    # No text
             byte10 = ((fault_code & 0x0F) << 4) | ((precision & 0x07) << 1) | (has_text & 0x01)
@@ -315,10 +327,13 @@ class RadioReceiver:
                 bytesize=serial.EIGHTBITS,
                 parity=serial.PARITY_NONE,
                 stopbits=serial.STOPBITS_ONE,
-                timeout=1
+                timeout=1,
+                rtscts=True  # Enable hardware flow control - CRITICAL for Laird radios!
             )
+            # Set RTS high for normal operation (allows radio to send data)
+            self.serial.rts = True
             mode_str = "API" if self.api_mode else "Transparent"
-            print(f"Connected to OI radio module on {self.port} ({mode_str} mode)")
+            print(f"Connected to OI radio module on {self.port} ({mode_str} mode, RTS/CTS flow control enabled)")
             return True
         except Exception as e:
             print(f"Failed to connect to radio module: {e}")
@@ -329,6 +344,71 @@ class RadioReceiver:
         self.stop()
         if self.serial and self.serial.is_open:
             self.serial.close()
+    
+    def send_address_change_command(self, current_address: int, new_address: int) -> bool:
+        """Send F8 diagnostic command to change sensor address wirelessly.
+        
+        This sends a special diagnostic packet that tells a sensor at current_address
+        to change its address to new_address. Used to resolve address conflicts
+        (Fault 8: Duplicate Otis Address).
+        
+        Args:
+            current_address: Current sensor address (1-255)
+            new_address: New sensor address to assign (1-255)
+            
+        Returns:
+            True if command sent successfully
+            
+        Note: Sensor must be in diagnostic mode (Mode 5) to accept address changes.
+        This is typically done by pressing buttons on the sensor.
+        """
+        if not self.serial or not self.serial.is_open:
+            print("Radio not connected")
+            return False
+        
+        try:
+            # Build F8 diagnostic command packet
+            # This is a special protocol packet used by monitors to configure sensors
+            # Format: [Address_H][Address_L][0xF8][Command][NewAddr_H][NewAddr_L][Checksum]
+            
+            # Byte 0-1: Target sensor current address (big-endian)
+            addr_high = (current_address >> 8) & 0xFF
+            addr_low = current_address & 0xFF
+            
+            # Byte 2: F8 diagnostic protocol
+            protocol = 0xF8
+            
+            # Byte 3: Command code (0x41 = Change Address)
+            command = 0x41
+            
+            # Byte 4-5: New address (big-endian)
+            new_addr_high = (new_address >> 8) & 0xFF
+            new_addr_low = new_address & 0xFF
+            
+            # Build packet
+            packet = bytearray([
+                addr_high, addr_low, protocol, command,
+                new_addr_high, new_addr_low
+            ])
+            
+            # Checksum: sum of all bytes & 0xFF
+            checksum = sum(packet) & 0xFF
+            packet.append(checksum)
+            
+            # Send packet
+            if self.api_mode:
+                # API mode - radio will handle framing
+                self.serial.write(packet)
+            else:
+                # Transparent mode
+                self.serial.write(packet)
+            
+            print(f"Sent address change command: {current_address} -> {new_address}")
+            return True
+            
+        except Exception as e:
+            print(f"Error sending address change command: {e}")
+            return False
     
     def register_callback(self, callback: Callable[[RadioMessage], None]):
         """Register callback for received messages"""
@@ -376,9 +456,17 @@ class RadioReceiver:
         Transparent Mode:
         - Raw Gen2 packets
         - Protocol 1 (12+ bytes), Protocol 2 (8 bytes), Protocol 7 (13 bytes)
+        
+        RM024 API Mode:
+        - Frames start with 0xCC delimiter  
+        - Format: [0xCC][SrcMAC 4 bytes][RSSI][Gen2 Data...]
+        - Provides source tracking and signal strength
         """
         if self.api_mode:
-            self._process_api_frames()
+            if self.api_type == 'rm024':
+                self._process_rm024_api_frames()
+            else:  # xbee
+                self._process_api_frames()
         else:
             self._process_transparent()
     
@@ -416,6 +504,105 @@ class RadioReceiver:
             
             # Remove processed frame
             self.buffer = self.buffer[total_len:]
+    
+    def _process_rm024_api_frames(self):
+        """Process RM024 API Receive mode frames (0xCC start delimiter with source MAC and RSSI).
+        
+        RM024 API Receive Packet Format (0xC1 bit 0 enabled):
+        [0xCC][SrcMAC[3]][SrcMAC[2]][SrcMAC[1]][SrcMAC[0]][RSSI][Gen2 Payload...]
+        
+        Example: CC 00 50 67 E0 75 81 11 ...
+                 ^  ^^^^^^^^^^^^^ ^  ^^^^^^^^
+                 |  Source MAC    |  Gen2 packet
+                 Delimiter      RSSI
+        """
+        while len(self.buffer) >= 9:  # Minimum: CC + 4 MAC + RSSI + 3 Gen2 bytes
+            # Look for 0xCC start delimiter
+            if self.buffer[0] != 0xCC:
+                self.buffer.pop(0)
+                continue
+            
+            # Extract source MAC (4 bytes - last 4 bytes of full MAC)
+            src_mac = bytes(self.buffer[1:5])
+            
+            # Extract RSSI (1 byte, 0-199 scale)
+            rssi = self.buffer[5]
+            
+            # Gen2 packet starts at byte 6
+            gen2_start = 6
+            
+            # Determine Gen2 packet length by protocol
+            if gen2_start + 2 >= len(self.buffer):
+                break  # Need more data to check protocol
+            
+            protocol = self.buffer[gen2_start + 2]
+            
+            if protocol == 1:  # Protocol 1: 12 bytes minimum
+                min_len = gen2_start + 12
+                if len(self.buffer) < min_len:
+                    break  # Need more data
+                
+                # Check for optional text
+                has_text = (self.buffer[gen2_start + 10] & 0x01) == 1
+                if has_text:
+                    if len(self.buffer) < gen2_start + 12:
+                        break
+                    text_len = self.buffer[gen2_start + 11]
+                    total_len = gen2_start + 12 + text_len + 1
+                else:
+                    total_len = min_len
+                
+                if len(self.buffer) < total_len:
+                    break  # Need more data
+                
+                # Extract Gen2 packet
+                gen2_packet = self.buffer[gen2_start:total_len]
+                
+                # Validate checksum
+                checksum_idx = len(gen2_packet) - 1
+                calc_sum = sum(gen2_packet[:checksum_idx]) & 0xFF
+                if gen2_packet[checksum_idx] != calc_sum and gen2_packet[checksum_idx] != (0xFF - calc_sum):
+                    # Checksum failed
+                    self.buffer.pop(0)
+                    continue
+                
+                # Parse with RSSI
+                self._parse_gen2_packet(gen2_packet, rssi=rssi, src_mac=src_mac)
+                
+                # Remove processed frame
+                self.buffer = self.buffer[total_len:]
+            
+            elif protocol == 2:  # Protocol 2: 8 bytes
+                total_len = gen2_start + 8
+                if len(self.buffer) < total_len:
+                    break
+                
+                gen2_packet = self.buffer[gen2_start:total_len]
+                calc_sum = sum(gen2_packet[:7]) & 0xFF
+                if gen2_packet[7] != calc_sum and gen2_packet[7] != (0xFF - calc_sum):
+                    self.buffer.pop(0)
+                    continue
+                
+                self._parse_gen2_packet(gen2_packet, rssi=rssi, src_mac=src_mac)
+                self.buffer = self.buffer[total_len:]
+            
+            elif protocol == 7:  # Protocol 7: 13 bytes
+                total_len = gen2_start + 13
+                if len(self.buffer) < total_len:
+                    break
+                
+                gen2_packet = self.buffer[gen2_start:total_len]
+                calc_sum = sum(gen2_packet[:12]) & 0xFF
+                if gen2_packet[12] != calc_sum and gen2_packet[12] != (0xFF - calc_sum):
+                    self.buffer.pop(0)
+                    continue
+                
+                self._parse_gen2_packet(gen2_packet, rssi=rssi, src_mac=src_mac)
+                self.buffer = self.buffer[total_len:]
+            
+            else:
+                # Unknown protocol, skip this byte
+                self.buffer.pop(0)
     
     def _extract_gen2_from_api(self, frame_data: bytearray) -> tuple:
         """Extract OI Gen2 packet from XBee API frame payload.
@@ -468,8 +655,14 @@ class RadioReceiver:
             # Try to parse Gen2 packet starting at buffer[0]
             self._parse_gen2_packet(self.buffer)
     
-    def _parse_gen2_packet(self, data: bytearray):
-        """Parse OI Gen2 protocol packet (Protocol 1, 2, or 7)"""
+    def _parse_gen2_packet(self, data: bytearray, rssi: Optional[int] = None, src_mac: Optional[bytes] = None):
+        """Parse OI Gen2 protocol packet (Protocol 1, 2, or 7).
+        
+        Args:
+            data: Gen2 packet bytes
+            rssi: Optional RSSI value from RM024 API mode (0-199 scale)
+            src_mac: Optional 4-byte source MAC from RM024 API mode
+        """
         if len(data) < 3:
             return
         
@@ -501,7 +694,7 @@ class RadioReceiver:
                 return
             
             # Parse valid packet
-            msg = self._parse_protocol1(data[:total_length])
+            msg = self._parse_protocol1(data[:total_length], rssi=rssi)
             if msg:
                 for callback in self.callbacks:
                     callback(msg)
@@ -521,7 +714,7 @@ class RadioReceiver:
                     self.buffer.pop(0)
                 return
             
-            msg = self._parse_protocol2(data[:8])
+            msg = self._parse_protocol2(data[:8], rssi=rssi)
             if msg:
                 for callback in self.callbacks:
                     callback(msg)
@@ -540,7 +733,7 @@ class RadioReceiver:
                     self.buffer.pop(0)
                 return
             
-            msg = self._parse_protocol7(data[:13])
+            msg = self._parse_protocol7(data[:13], rssi=rssi)
             if msg:
                 for callback in self.callbacks:
                     callback(msg)
@@ -552,7 +745,7 @@ class RadioReceiver:
             if len(self.buffer) > 0:
                 self.buffer.pop(0)
     
-    def _parse_protocol1(self, data: bytearray) -> Optional[RadioMessage]:
+    def _parse_protocol1(self, data: bytearray, rssi: Optional[int] = None) -> Optional[RadioMessage]:
         """Parse Protocol 1: Full sensor data"""
         try:
             transmitter_address = (data[0] << 8) | data[1]
@@ -596,13 +789,14 @@ class RadioReceiver:
                 gas_type=gas_type,
                 fault_code=fault_code,
                 precision=precision,
-                text=text
+                text=text,
+                rssi=rssi
             )
         except Exception as e:
             print(f"Error parsing Protocol 1: {e}")
             return None
     
-    def _parse_protocol2(self, data: bytearray) -> Optional[RadioMessage]:
+    def _parse_protocol2(self, data: bytearray, rssi: Optional[int] = None) -> Optional[RadioMessage]:
         """Parse Protocol 2: Quick gas detection"""
         try:
             transmitter_address = (data[0] << 8) | data[1]
@@ -613,13 +807,14 @@ class RadioReceiver:
                 protocol=2,
                 transmitter_address=transmitter_address,
                 channel=transmitter_address,
-                reading=reading
+                reading=reading,
+                rssi=rssi
             )
         except Exception as e:
             print(f"Error parsing Protocol 2: {e}")
             return None
     
-    def _parse_protocol7(self, data: bytearray) -> Optional[RadioMessage]:
+    def _parse_protocol7(self, data: bytearray, rssi: Optional[int] = None) -> Optional[RadioMessage]:
         """Parse Protocol 7: Maintenance timing"""
         try:
             transmitter_address = (data[0] << 8) | data[1]
@@ -639,7 +834,8 @@ class RadioReceiver:
                 days_since_null=days_since_null,
                 days_since_cal=days_since_cal,
                 sensor_mode=sensor_mode,
-                sensor_type=sensor_type
+                sensor_type=sensor_type,
+                rssi=rssi
             )
         except Exception as e:
             print(f"Error parsing Protocol 7: {e}")
