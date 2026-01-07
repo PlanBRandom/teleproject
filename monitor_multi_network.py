@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """
-Multi-Network Radio & Modbus Monitor
+Multi-Network Radio & Modbus Monitor with MQTT Reporting
 Monitors 3-tier repeater network topology simultaneously:
   - Network 15 (COM7) → OI-7530 (Modbus slave 30)
   - Network 20 (COM12) → OI-7010 (Modbus slave 10)
   - Network 25 (COM11) → OI-7032 (Modbus slave 3) - Primary via repeaters
+
+Reports data to Hive MQTT broker for remote monitoring.
 """
 
 import serial
@@ -15,6 +17,11 @@ from datetime import datetime
 from collections import defaultdict
 import json
 import os
+import sys
+
+# Add pipeline to path for MQTT imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pipeline.mqtt import MQTTPublisher, MQTTConfig
 
 # Gas type mapping
 GAS_TYPES = {
@@ -26,7 +33,7 @@ GAS_TYPES = {
 }
 
 class MultiNetworkMonitor:
-    def __init__(self, duration_hours=1):
+    def __init__(self, duration_hours=1, mqtt_broker="localhost", mqtt_port=1883, mqtt_username=None, mqtt_password=None):
         self.duration_hours = duration_hours
         self.running = False
         self.start_time = None
@@ -41,6 +48,23 @@ class MultiNetworkMonitor:
         # Modbus configuration
         self.modbus_port = 'COM10'
         self.modbus_baudrate = 19200
+        
+        # MQTT configuration
+        self.mqtt_enabled = mqtt_broker is not None
+        self.mqtt_publisher = None
+        if self.mqtt_enabled:
+            mqtt_config = MQTTConfig(
+                broker=mqtt_broker,
+                port=mqtt_port,
+                username=mqtt_username,
+                password=mqtt_password,
+                client_id="oi_multi_network_monitor",
+                base_topic="oi7500",
+                device_name="OI Multi-Network Monitor",
+                device_id="oi_network_monitor",
+                discovery_enabled=True
+            )
+            self.mqtt_publisher = MQTTPublisher(mqtt_config)
         
         # Statistics
         self.stats = {
@@ -151,6 +175,10 @@ class MultiNetworkMonitor:
                                     f"Status 0x{decoded['status']:02X}\n"
                                 )
                                 self.analysis_log.flush()
+                                
+                                # Publish to MQTT
+                                if self.mqtt_enabled and self.mqtt_publisher and self.mqtt_publisher.connected:
+                                    self._publish_channel_to_mqtt(network_name, decoded)
                         else:
                             # Skip byte and continue
                             buffer = buffer[1:]
@@ -237,7 +265,87 @@ class MultiNetworkMonitor:
             with open(self.stats_file, 'w') as f:
                 json.dump(stats_copy, f, indent=2)
             
+            # Publish stats to MQTT
+            self._publish_stats_to_mqtt()
+            
             time.sleep(60)  # Update every minute
+    
+    def _publish_channel_to_mqtt(self, network_name, decoded):
+        """Publish channel reading to MQTT."""
+        try:
+            channel = decoded['channel']
+            reading = decoded['reading']
+            gas_name = decoded['gas_name']
+            status = decoded['status']
+            
+            # Publish to network-specific topic
+            topic = f"oi7500/network/{network_name}/channel_{channel}/state"
+            payload = {
+                "channel": channel,
+                "reading": reading,
+                "gas_type": gas_name,
+                "status": status,
+                "network": network_name,
+                "timestamp": datetime.now().isoformat()
+            }
+            self.mqtt_publisher.publish(topic, payload, retain=False)
+            
+            # Also publish to channel-aggregated topic (all networks for same channel)
+            topic_agg = f"oi7500/channels/channel_{channel}/state"
+            payload_agg = {
+                "channel": channel,
+                "reading": reading,
+                "gas_type": gas_name,
+                "status": status,
+                "source_network": network_name,
+                "timestamp": datetime.now().isoformat()
+            }
+            self.mqtt_publisher.publish(topic_agg, payload_agg, retain=False)
+            
+        except Exception as e:
+            self.analysis_log.write(f"[{datetime.now().isoformat()}] MQTT publish error: {e}\n")
+            self.analysis_log.flush()
+    
+    def _publish_stats_to_mqtt(self):
+        """Publish statistics to MQTT."""
+        if not self.mqtt_enabled or not self.mqtt_publisher or not self.mqtt_publisher.connected:
+            return
+        
+        try:
+            # Publish overall stats
+            topic = "oi7500/monitor/stats"
+            stats_copy = {
+                'start_time': self.stats['start_time'],
+                'last_update': self.stats['last_update'],
+                'elapsed_seconds': self.stats.get('elapsed_seconds', 0),
+                'radios': {},
+                'modbus': self.stats['modbus'].copy()
+            }
+            
+            for network, data in self.stats['radios'].items():
+                stats_copy['radios'][network] = {
+                    'total_bytes': data['total_bytes'],
+                    'total_packets': data['total_packets'],
+                    'channels': dict(data['channels']),
+                    'gas_types': dict(data['gas_types']),
+                }
+            
+            self.mqtt_publisher.publish(topic, stats_copy, retain=True)
+            
+            # Publish per-network stats
+            for network, data in self.stats['radios'].items():
+                topic = f"oi7500/network/{network}/stats"
+                network_stats = {
+                    'total_bytes': data['total_bytes'],
+                    'total_packets': data['total_packets'],
+                    'channel_count': len(data['channels']),
+                    'channels': sorted(list(data['channels'].keys())),
+                    'timestamp': datetime.now().isoformat()
+                }
+                self.mqtt_publisher.publish(topic, network_stats, retain=True)
+                
+        except Exception as e:
+            print(f"MQTT stats publish error: {e}")
     
     def print_status(self):
         """Print periodic status updates to console."""
@@ -281,10 +389,40 @@ class MultiNetworkMonitor:
         print(f"\nModbus Bus:")
         print(f"  {self.modbus_port} @ {self.modbus_baudrate} baud")
         print(f"  Monitoring slaves: 3 (OI-7032), 10 (OI-7010), 30 (OI-7530)")
+        
+        if self.mqtt_enabled:
+            print(f"\nMQTT Reporting:")
+            print(f"  Broker: {self.mqtt_publisher.config.broker}:{self.mqtt_publisher.config.port}")
+            print(f"  Base Topic: {self.mqtt_publisher.config.base_topic}")
+        else:
+            print(f"\nMQTT: Disabled")
+        
         print(f"\nDuration: {self.duration_hours} hour(s)")
         print(f"Logs: {self.log_dir}/")
         print("="*80)
         print("\nStarting monitors...")
+        
+        # Connect to MQTT if enabled
+        if self.mqtt_enabled:
+            try:
+                print("  Connecting to MQTT...")
+                self.mqtt_publisher.connect()
+                self.mqtt_publisher.publish_availability(True)
+                print(f"  ✓ MQTT connected to {self.mqtt_publisher.config.broker}")
+                
+                # Publish initial status
+                topic = "oi7500/monitor/status"
+                status = {
+                    "state": "starting",
+                    "duration_hours": self.duration_hours,
+                    "networks": list(self.radios.keys()),
+                    "timestamp": datetime.now().isoformat()
+                }
+                self.mqtt_publisher.publish(topic, status)
+            except Exception as e:
+                print(f"  ⚠️  MQTT connection failed: {e}")
+                print(f"  Continuing without MQTT...")
+                self.mqtt_enabled = False
         
         self.running = True
         self.start_time = datetime.now()
@@ -319,7 +457,22 @@ class MultiNetworkMonitor:
         print(f"\n✓ All monitors running!")
         print(f"  Press Ctrl+C to stop early")
         print(f"  Will automatically stop after {self.duration_hours} hour(s)")
+        
+        if self.mqtt_enabled:
+            print(f"  Publishing data to MQTT: {self.mqtt_publisher.config.broker}")
+        
         print("="*80)
+        
+        # Publish running status to MQTT
+        if self.mqtt_enabled and self.mqtt_publisher and self.mqtt_publisher.connected:
+            topic = "oi7500/monitor/status"
+            status = {
+                "state": "running",
+                "start_time": self.start_time.isoformat(),
+                "duration_hours": self.duration_hours,
+                "timestamp": datetime.now().isoformat()
+            }
+            self.mqtt_publisher.publish(topic, status)
         
         # Run for specified duration
         try:
@@ -339,6 +492,22 @@ class MultiNetworkMonitor:
             log_file.close()
         self.modbus_log.close()
         self.analysis_log.close()
+        
+        # Publish final status to MQTT
+        if self.mqtt_enabled and self.mqtt_publisher and self.mqtt_publisher.connected:
+            topic = "oi7500/monitor/status"
+            status = {
+                "state": "stopped",
+                "end_time": datetime.now().isoformat(),
+                "elapsed_seconds": elapsed,
+                "timestamp": datetime.now().isoformat()
+            }
+            self.mqtt_publisher.publish(topic, status)
+            
+            # Disconnect from MQTT
+            self.mqtt_publisher.publish_availability(False)
+            self.mqtt_publisher.disconnect()
+            print("\n✓ MQTT disconnected")
         
         # Final stats
         self.stats['last_update'] = datetime.now().isoformat()
@@ -371,15 +540,32 @@ class MultiNetworkMonitor:
 
 if __name__ == '__main__':
     import sys
+    import argparse
     
-    # Duration in hours (default 1 hour)
-    duration = 1.0
-    if len(sys.argv) > 1:
-        try:
-            duration = float(sys.argv[1])
-        except:
-            print(f"Usage: {sys.argv[0]} [duration_hours]")
-            sys.exit(1)
+    parser = argparse.ArgumentParser(description='Multi-Network Radio & Modbus Monitor with MQTT')
+    parser.add_argument('duration', type=float, nargs='?', default=1.0,
+                        help='Duration in hours (default: 1.0)')
+    parser.add_argument('--mqtt-broker', type=str, default='localhost',
+                        help='MQTT broker address (default: localhost)')
+    parser.add_argument('--mqtt-port', type=int, default=1883,
+                        help='MQTT broker port (default: 1883)')
+    parser.add_argument('--mqtt-username', type=str, default=None,
+                        help='MQTT username (optional)')
+    parser.add_argument('--mqtt-password', type=str, default=None,
+                        help='MQTT password (optional)')
+    parser.add_argument('--no-mqtt', action='store_true',
+                        help='Disable MQTT reporting')
     
-    monitor = MultiNetworkMonitor(duration_hours=duration)
+    args = parser.parse_args()
+    
+    # Disable MQTT if requested
+    mqtt_broker = None if args.no_mqtt else args.mqtt_broker
+    
+    monitor = MultiNetworkMonitor(
+        duration_hours=args.duration,
+        mqtt_broker=mqtt_broker,
+        mqtt_port=args.mqtt_port,
+        mqtt_username=args.mqtt_username,
+        mqtt_password=args.mqtt_password
+    )
     monitor.run()
