@@ -35,11 +35,16 @@ from typing import Callable, Dict, Optional, List
 from dataclasses import dataclass
 
 
-# Gas types from OI protocol spec
+# Gas types from OI protocol spec (complete list)
 GAS_TYPE_NAMES = {
     0: "H2S", 1: "SO2", 2: "O2", 3: "CO", 4: "CL2",
-    5: "CO2", 6: "LEL", 7: "VOC", 8: "Tank Level",
-    9: "HCl", 10: "NH3"
+    5: "CO2", 6: "LEL", 7: "VOC", 8: "FEET",
+    9: "HCl", 10: "NH3", 11: "H2", 12: "ClO2", 13: "HCN",
+    14: "F2", 15: "HF", 16: "CH2O", 17: "NO2", 18: "O3",
+    19: "INCHES", 20: "4-20mA", 21: "Not Specified",
+    22: "°C", 23: "°F", 24: "CH4", 25: "NO", 26: "PH3",
+    27: "HBr", 28: "EtO", 29: "CH3SH", 30: "AsH3",
+    31: "R410A", 32: "R1234YF", 33: "R32"
 }
 
 # Sensor types from OI protocol spec
@@ -433,16 +438,28 @@ class RadioReceiver:
     
     def _receive_loop(self):
         """Main receive loop"""
+        print(f"[RADIO] *** Receive loop STARTED *** API mode: {self.api_mode}, API type: {self.api_type if self.api_mode else 'N/A'}")
+        
         while self.running:
             try:
                 if self.serial.in_waiting > 0:
-                    data = self.serial.read(self.serial.in_waiting)
+                    available = self.serial.in_waiting
+                    print(f"\n[RADIO] *** {available} BYTES AVAILABLE ***")
+                    
+                    data = self.serial.read(available)
+                    print(f"[RADIO] Raw hex: {data.hex()}")
+                    print(f"[RADIO] Raw ASCII: {''.join(chr(b) if 32 <= b < 127 else '.' for b in data)}")
+                    
                     self.buffer.extend(data)
+                    print(f"[RADIO] Buffer size now: {len(self.buffer)} bytes")
+                    
                     self._process_buffer()
                 else:
                     time.sleep(0.01)
             except Exception as e:
-                print(f"Radio receive error: {e}")
+                print(f"[RADIO] *** ERROR in receive loop: {e}")
+                import traceback
+                traceback.print_exc()
                 time.sleep(1)
     
     def _process_buffer(self):
@@ -506,102 +523,60 @@ class RadioReceiver:
             self.buffer = self.buffer[total_len:]
     
     def _process_rm024_api_frames(self):
-        """Process RM024 API Receive mode frames (0xCC start delimiter with source MAC and RSSI).
+        """Process RM024 API Receive mode frames.
         
-        RM024 API Receive Packet Format (0xC1 bit 0 enabled):
+        Format 1 (0xCC - API receive with MAC/RSSI):
         [0xCC][SrcMAC[3]][SrcMAC[2]][SrcMAC[1]][SrcMAC[0]][RSSI][Gen2 Payload...]
         
-        Example: CC 00 50 67 E0 75 81 11 ...
-                 ^  ^^^^^^^^^^^^^ ^  ^^^^^^^^
-                 |  Source MAC    |  Gen2 packet
-                 Delimiter      RSSI
+        Format 2 (0x81 - Length-prefixed):
+        [0x81][LenH][LenL][Gen2 Payload...]
         """
-        while len(self.buffer) >= 9:  # Minimum: CC + 4 MAC + RSSI + 3 Gen2 bytes
-            # Look for 0xCC start delimiter
-            if self.buffer[0] != 0xCC:
-                self.buffer.pop(0)
+        print(f"[RADIO] _process_rm024_api_frames called, buffer size: {len(self.buffer)}, first bytes: {bytes(self.buffer[:8]).hex()}")
+        
+        while len(self.buffer) >= 4:
+            print(f"[RADIO] Buffer start: 0x{self.buffer[0]:02x}")
+            
+            # Check for 0x81 length-prefixed format (what we're seeing)
+            if self.buffer[0] == 0x81:
+                print(f"[RADIO] Found 0x81 frame!")
+                if len(self.buffer) < 3:
+                    print(f"[RADIO] Need more data for length")
+                    break
+                
+                # Frame format: [0x81][Len][0x00][Payload][4-byte trailer]
+                # Total frame size = 3 + Len + 4 = 7 + Len
+                payload_len = self.buffer[1]  # Single byte length
+                header_len = 3  # 0x81 + Len + 0x00
+                trailer_len = 4  # 4 bytes at end (checksum/RSSI/etc)
+                total_len = header_len + payload_len + trailer_len
+                
+                print(f"[RADIO] Payload length: {payload_len}, total frame: {total_len}, buffer has: {len(self.buffer)}")
+                
+                if len(self.buffer) < total_len:
+                    print(f"[RADIO] Need more data (have {len(self.buffer)}, need {total_len})")
+                    break
+                
+                # Extract Gen2 packet (skip 3-byte header, exclude 4-byte trailer)
+                gen2_packet = bytearray(self.buffer[header_len:header_len + payload_len])
+                print(f"[RADIO] Extracted Gen2 packet ({len(gen2_packet)} bytes): {bytes(gen2_packet[:20]).hex()}")
+                
+                # Parse Gen2 packet
+                self._parse_gen2_packet(gen2_packet, rssi=None, src_mac=None)
+                
+                # Remove processed frame (including trailer)
+                self.buffer = self.buffer[total_len:]
+                print(f"[RADIO] Removed {total_len}-byte frame, buffer now: {len(self.buffer)} bytes")
                 continue
             
-            # Extract source MAC (4 bytes - last 4 bytes of full MAC)
-            src_mac = bytes(self.buffer[1:5])
-            
-            # Extract RSSI (1 byte, 0-199 scale)
-            rssi = self.buffer[5]
-            
-            # Gen2 packet starts at byte 6
-            gen2_start = 6
-            
-            # Determine Gen2 packet length by protocol
-            if gen2_start + 2 >= len(self.buffer):
-                break  # Need more data to check protocol
-            
-            protocol = self.buffer[gen2_start + 2]
-            
-            if protocol == 1:  # Protocol 1: 12 bytes minimum
-                min_len = gen2_start + 12
-                if len(self.buffer) < min_len:
-                    break  # Need more data
-                
-                # Check for optional text
-                has_text = (self.buffer[gen2_start + 10] & 0x01) == 1
-                if has_text:
-                    if len(self.buffer) < gen2_start + 12:
-                        break
-                    text_len = self.buffer[gen2_start + 11]
-                    total_len = gen2_start + 12 + text_len + 1
-                else:
-                    total_len = min_len
-                
-                if len(self.buffer) < total_len:
-                    break  # Need more data
-                
-                # Extract Gen2 packet
-                gen2_packet = self.buffer[gen2_start:total_len]
-                
-                # Validate checksum
-                checksum_idx = len(gen2_packet) - 1
-                calc_sum = sum(gen2_packet[:checksum_idx]) & 0xFF
-                if gen2_packet[checksum_idx] != calc_sum and gen2_packet[checksum_idx] != (0xFF - calc_sum):
-                    # Checksum failed
-                    self.buffer.pop(0)
-                    continue
-                
-                # Parse with RSSI
-                self._parse_gen2_packet(gen2_packet, rssi=rssi, src_mac=src_mac)
-                
-                # Remove processed frame
-                self.buffer = self.buffer[total_len:]
-            
-            elif protocol == 2:  # Protocol 2: 8 bytes
-                total_len = gen2_start + 8
-                if len(self.buffer) < total_len:
-                    break
-                
-                gen2_packet = self.buffer[gen2_start:total_len]
-                calc_sum = sum(gen2_packet[:7]) & 0xFF
-                if gen2_packet[7] != calc_sum and gen2_packet[7] != (0xFF - calc_sum):
-                    self.buffer.pop(0)
-                    continue
-                
-                self._parse_gen2_packet(gen2_packet, rssi=rssi, src_mac=src_mac)
-                self.buffer = self.buffer[total_len:]
-            
-            elif protocol == 7:  # Protocol 7: 13 bytes
-                total_len = gen2_start + 13
-                if len(self.buffer) < total_len:
-                    break
-                
-                gen2_packet = self.buffer[gen2_start:total_len]
-                calc_sum = sum(gen2_packet[:12]) & 0xFF
-                if gen2_packet[12] != calc_sum and gen2_packet[12] != (0xFF - calc_sum):
-                    self.buffer.pop(0)
-                    continue
-                
-                self._parse_gen2_packet(gen2_packet, rssi=rssi, src_mac=src_mac)
-                self.buffer = self.buffer[total_len:]
+            # Check for 0xCC format (original RM024 API)
+            elif self.buffer[0] == 0xCC:
+                print(f"[RADIO] Found 0xCC frame - not fully implemented yet")
+                # For now, just discard it
+                self.buffer.pop(0)
             
             else:
-                # Unknown protocol, skip this byte
+                # Unknown frame start byte
+                print(f"[RADIO] Unknown frame start 0x{self.buffer[0]:02x}, discarding")
                 self.buffer.pop(0)
     
     def _extract_gen2_from_api(self, frame_data: bytearray) -> tuple:
@@ -651,9 +626,26 @@ class RadioReceiver:
     
     def _process_transparent(self):
         """Process raw Gen2 packets (transparent mode)"""
-        while len(self.buffer) >= 3:
+        print(f"[RADIO] _process_transparent called, buffer length: {len(self.buffer)}")
+        
+        max_iterations = 100  # Prevent infinite loops
+        iterations = 0
+        
+        while len(self.buffer) >= 3 and iterations < max_iterations:
+            iterations += 1
+            buffer_size_before = len(self.buffer)
+            
+            print(f"[RADIO] Attempting to parse packet from buffer (first 20 bytes): {bytes(self.buffer[:20]).hex()}")
             # Try to parse Gen2 packet starting at buffer[0]
             self._parse_gen2_packet(self.buffer)
+            
+            # If buffer didn't change, we're stuck - break to prevent infinite loop
+            if len(self.buffer) == buffer_size_before:
+                print(f"[RADIO] WARNING: Buffer size unchanged after parse attempt, breaking")
+                # Try to resync by looking for potential packet start (0x00)
+                if len(self.buffer) > 0:
+                    self.buffer.pop(0)
+                break
     
     def _parse_gen2_packet(self, data: bytearray, rssi: Optional[int] = None, src_mac: Optional[bytes] = None):
         """Parse OI Gen2 protocol packet (Protocol 1, 2, or 7).
@@ -664,13 +656,17 @@ class RadioReceiver:
             src_mac: Optional 4-byte source MAC from RM024 API mode
         """
         if len(data) < 3:
+            print(f"[RADIO] Not enough data for protocol detection (need 3, have {len(data)})")
             return
         
         protocol = data[2]
+        print(f"[RADIO] Detected protocol: {protocol}")
         
         if protocol == 1:
+            print(f"[RADIO] Parsing Protocol 1 (full sensor data)")
             # Protocol 1: Full sensor data
             if len(data) < 11:
+                print(f"[RADIO] Not enough data for Protocol 1 (need 11, have {len(data)})")
                 return  # Need more data
             
             has_text = (data[10] & 0x01) == 1
@@ -682,26 +678,39 @@ class RadioReceiver:
             else:
                 total_length = 12
             
+            print(f"[RADIO] Protocol 1 total length: {total_length}")
+            
             if len(data) < total_length:
+                print(f"[RADIO] Not enough data (need {total_length}, have {len(data)})")
                 return
             
             # Validate checksum
             checksum_idx = total_length - 1
             calculated_checksum = sum(data[:checksum_idx]) & 0xFF
+            packet_checksum = data[checksum_idx]
+            
+            print(f"[RADIO] Checksum calc={calculated_checksum:02x}, packet={packet_checksum:02x}")
+            
             if data[checksum_idx] != calculated_checksum:
+                print(f"[RADIO] *** CHECKSUM MISMATCH *** Discarding first byte and retrying")
                 if len(self.buffer) > 0 and self.buffer[0] == data[0]:
                     self.buffer.pop(0)
                 return
             
             # Parse valid packet
+            print(f"[RADIO] *** VALID PACKET - Parsing Protocol 1 ***")
             msg = self._parse_protocol1(data[:total_length], rssi=rssi)
             if msg:
+                print(f"[RADIO] *** CALLING {len(self.callbacks)} CALLBACKS ***")
                 for callback in self.callbacks:
                     callback(msg)
+            else:
+                print(f"[RADIO] WARNING: _parse_protocol1 returned None")
             
             # Remove processed packet (transparent mode only)
             if not self.api_mode and len(self.buffer) >= total_length:
                 self.buffer = self.buffer[total_length:]
+                print(f"[RADIO] Removed {total_length} bytes from buffer, {len(self.buffer)} remaining")
         
         elif protocol == 2:
             # Protocol 2: Quick gas detection

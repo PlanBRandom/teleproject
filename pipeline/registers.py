@@ -3,6 +3,7 @@ Complete OI-7032/7530/7010 register definitions with enumerations and control co
 """
 
 # Gas Type Enumeration (registers 0x101-0x120 / 257-288)
+# Complete OI-7032 specification including firmware 4.1.3+ gases
 GAS_TYPES = {
     0: "H2S",
     1: "SO2",
@@ -27,19 +28,33 @@ GAS_TYPES = {
     20: "4-20mA",
     21: "Not Specified",
     22: "°C",
-    23: "PH3",
-    24: "N2O",
-    25: "AsH3",
-    26: "NO",
-    27: "Br2"
+    23: "°F",
+    24: "CH4",
+    25: "NO",
+    26: "PH3",
+    27: "HBr",
+    28: "EtO",          # Firmware 4.1.3+
+    29: "CH3SH",        # Firmware 4.1.3+
+    30: "AsH3",         # Firmware 4.1.3+
+    31: "R410A",        # Firmware 4.1.3+
+    32: "R1234YF",      # Firmware 4.1.3+
+    33: "R32"           # Firmware 4.1.3+
 }
 
 # Sensor Type Enumeration (registers 0xE1-0x100 / 225-256)
+# Note: Base-1/PLC addressing shows these as 0xE2-0x101 (add 1)
 SENSOR_TYPES = {
-    0: "OI-6000 Sensor",
-    1: "OI-6500 LPIR Sensor",
-    2: "152 Sensor",
-    3: "OI-6200 Humidity Sensor"
+    0: "EC (Electrochemical)",
+    1: "IR (Infrared)",
+    2: "CB (Catalytic Bead)",  # CATBEAD - for LEL/combustible gas
+    3: "MOS (Metal Oxide Semiconductor)",
+    4: "PID (Photo-Ionization Detector)",
+    5: "Tank Level",
+    6: "4-20mA",
+    7: "Switch",
+    8: "Pressure",
+    9: "Temperature",
+    10: "Humidity",
 }
 
 # Mode Enumeration (registers 0x61-0x80 / 97-128)

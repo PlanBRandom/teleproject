@@ -16,7 +16,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pipeline.modbus_client import ModbusClient, ModbusConfig, ConnectionType
-from pipeline.radio_receiver import RadioReceiver
+from pipeline.radio_receiver import RadioReceiver, GAS_TYPE_NAMES
 from pipeline.device_control import DeviceControl
 from pipeline.registers import GAS_TYPES, SENSOR_TYPES, FAULT_CODES
 import serial
@@ -341,10 +341,17 @@ def setup_radio_listeners():
     def on_sensor_message(msg):
         """Forward sensor messages to web GUI via SocketIO"""
         try:
+            print(f"\n[RADIO] *** SENSOR MESSAGE RECEIVED ***")
+            print(f"[RADIO] Address: {msg.transmitter_address}, Channel: {msg.channel}")
+            print(f"[RADIO] Reading: {msg.reading}, Gas Type: {msg.gas_type}")
+            print(f"[RADIO] Has gas_type_name: {hasattr(msg, 'gas_type_name')}")
+            
             # Format sensor data for display
-            gas_name = msg.gas_type_name if hasattr(msg, 'gas_type_name') else 'Unknown'
+            gas_name = msg.gas_type_name if hasattr(msg, 'gas_type_name') else GAS_TYPE_NAMES.get(msg.gas_type, 'Unknown')
             sensor_name = msg.sensor_type_name if hasattr(msg, 'sensor_type_name') else 'Unknown'
             fault_name = msg.fault_name if hasattr(msg, 'fault_name') else 'None'
+            
+            print(f"[RADIO] Gas: {gas_name}, Sensor: {sensor_name}, Fault: {fault_name}")
             
             # Build status string
             status_parts = []
@@ -363,7 +370,7 @@ def setup_radio_listeners():
             })
             
             # Emit sensor data event
-            socketio.emit('sensor_data', {
+            sensor_event = {
                 'sensor_id': msg.transmitter_address,  # For backwards compatibility
                 'address': msg.transmitter_address,
                 'channel': msg.channel,
@@ -373,11 +380,17 @@ def setup_radio_listeners():
                 'battery': msg.battery_voltage,
                 'fault': fault_name,
                 'timestamp': time.time()
-            })
+            }
             
-            print(f"[SENSOR DATA] @{msg.transmitter_address}: {gas_name} = {msg.reading:.1f} PPM")
+            print(f"[RADIO] Emitting 'sensor_data' event: {sensor_event}")
+            socketio.emit('sensor_data', sensor_event)
+            
+            print(f"[RADIO] SENSOR DATA EMITTED SUCCESSFULLY")
             
         except Exception as e:
+            print(f"[RADIO] ERROR in on_sensor_message: {e}")
+            import traceback
+            traceback.print_exc()
             print(f"Error processing sensor message: {e}")
             import traceback
             traceback.print_exc()
@@ -390,6 +403,16 @@ def setup_radio_listeners():
 def index():
     """Main dashboard"""
     return render_template('index.html')
+
+@app.route('/channels')
+def channels():
+    """Channel management page"""
+    return render_template('channels.html')
+
+@app.route('/diagnostic')
+def diagnostic():
+    """Data source diagnostic page"""
+    return render_template('diagnostic.html')
 
 @app.route('/api/ports')
 def get_ports():
@@ -475,31 +498,45 @@ def modbus_disconnect():
 
 @app.route('/api/modbus/read_channels')
 def read_channels():
-    """Read all active channels"""
+    """Read all channels (1-32)"""
     if not modbus_client:
         return jsonify({'success': False, 'error': 'Not connected'}), 400
     
     try:
         channels = []
         for ch in range(1, 33):
-            addr = 0x20 + (ch - 1) * 2
-            value = modbus_client.read_float32(addr)
-            
-            if value != 0.0:  # Only return active channels
-                # Get gas type
-                gas_type_addr = 0x100 + (ch - 1) * 2
-                gas_code = modbus_client.read_uint16(gas_type_addr)
+            try:
+                # Read channel value (Float32 - 2 registers)
+                addr = 0x20 + (ch - 1) * 2
+                value = modbus_client.read_float32(addr)
+                
+                # Get gas type (single register)
+                gas_type_addr = 0x100 + (ch - 1)
+                gas_regs = modbus_client.read_holding_registers(gas_type_addr, 1)
+                gas_code = gas_regs[0] if gas_regs else 0
                 gas_name = GAS_TYPES.get(gas_code, f"Unknown ({gas_code})")
                 
                 channels.append({
                     'channel': ch,
-                    'value': round(value, 2),
+                    'value': round(value, 2) if value is not None else 0.0,
                     'gas_type': gas_name,
-                    'gas_code': gas_code
+                    'gas_code': gas_code,
+                    'active': value is not None and value > 0
+                })
+            except Exception as ch_error:
+                # Include channel even if read fails
+                channels.append({
+                    'channel': ch,
+                    'value': 0.0,
+                    'gas_type': 'Error',
+                    'gas_code': 0,
+                    'active': False
                 })
         
-        return jsonify({'success': True, 'channels': channels})
+        return jsonify({'success': True, 'channels': channels, 'total': 32})
     except Exception as e:
+        import traceback
+        print(f"Error reading channels: {traceback.format_exc()}")
         return jsonify({'success': False, 'error': str(e)}), 400
 
 @app.route('/api/modbus/device_info')
@@ -509,16 +546,23 @@ def get_device_info():
         return jsonify({'success': False, 'error': 'Not connected'}), 400
     
     try:
+        # Read single registers using read_holding_registers
+        firmware_regs = modbus_client.read_holding_registers(0x05, 1)
+        channel_regs = modbus_client.read_holding_registers(0x09, 1)
+        sysid_regs = modbus_client.read_holding_registers(0x0A, 1)
+        
         info = {
             'serial_number': modbus_client.read_uint32(0x01),
             'model_number': modbus_client.read_uint32(0x03),
-            'firmware_version': modbus_client.read_uint16(0x05),
-            'network_channel': modbus_client.read_uint16(0x09),
-            'system_id': modbus_client.read_uint16(0x0A),
+            'firmware_version': firmware_regs[0],
+            'network_channel': channel_regs[0],
+            'system_id': sysid_regs[0],
             'uptime_hours': modbus_client.read_uint32(0x0E)
         }
         return jsonify({'success': True, 'info': info})
     except Exception as e:
+        import traceback
+        print(f"Error reading device info: {traceback.format_exc()}")
         return jsonify({'success': False, 'error': str(e)}), 400
 
 @app.route('/api/device/channel/<int:channel>/toggle', methods=['POST'])
@@ -590,8 +634,8 @@ def radio_connect():
             radio_receiver = None
         
         # Create and connect radio receiver  
-        # Use RM024 API mode to receive sensor data with 0xCC frames
-        radio_receiver = RadioReceiver(port, baudrate, api_mode=True, api_type='rm024')
+        # Try transparent mode - RM024 API wrapping doesn't preserve Gen2 structure
+        radio_receiver = RadioReceiver(port, baudrate, api_mode=False)
         
         # Connect to serial port
         if not radio_receiver.connect():
@@ -630,6 +674,45 @@ def radio_disconnect():
         return jsonify({'success': True})
     except Exception as e:
         radio_receiver = None
+        return jsonify({'success': False, 'error': str(e)}), 400
+
+@app.route('/api/radio/status', methods=['GET'])
+def radio_status():
+    """Get detailed radio receiver status"""
+    global radio_receiver
+    
+    try:
+        if not radio_receiver:
+            return jsonify({
+                'connected': False,
+                'message': 'No radio receiver initialized'
+            })
+        
+        # Get statistics
+        stats = radio_receiver.get_stats() if hasattr(radio_receiver, 'get_stats') else {}
+        
+        # Check if running (attribute is 'running' not 'is_running')
+        is_running = radio_receiver.running if hasattr(radio_receiver, 'running') else False
+        thread_alive = radio_receiver.thread.is_alive() if (hasattr(radio_receiver, 'thread') and radio_receiver.thread) else False
+        
+        status = {
+            'connected': is_running,
+            'thread_alive': thread_alive,
+            'port': radio_receiver.port if hasattr(radio_receiver, 'port') else 'Unknown',
+            'baudrate': radio_receiver.baudrate if hasattr(radio_receiver, 'baudrate') else 0,
+            'api_mode': radio_receiver.api_mode if hasattr(radio_receiver, 'api_mode') else False,
+            'api_type': radio_receiver.api_type if hasattr(radio_receiver, 'api_type') else 'unknown',
+            'serial_connected': radio_receiver.serial.is_open if (hasattr(radio_receiver, 'serial') and radio_receiver.serial) else False,
+            'messages_received': stats.get('total_messages', 0),
+            'protocol_1_count': stats.get('protocol_1', 0),
+            'protocol_7_count': stats.get('protocol_7', 0),
+            'errors': stats.get('errors', 0),
+            'last_message_time': stats.get('last_message_time', None),
+            'buffer_size': len(radio_receiver.buffer) if hasattr(radio_receiver, 'buffer') else 0
+        }
+        
+        return jsonify(status)
+    except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 400
 
 @app.route('/api/radio/check_mode')
@@ -685,25 +768,6 @@ def switch_to_transparent():
         })
     except Exception as e:
         exit_radio_command_mode(radio_receiver)
-        return jsonify({'success': False, 'error': str(e)}), 400
-
-@app.route('/api/radio/status')
-def radio_status():
-    """Get radio status"""
-    if not radio_receiver:
-        return jsonify({'success': False, 'error': 'Not connected'}), 400
-    
-    try:
-        rssi = radio_receiver.get_rssi()
-        mac = radio_receiver.get_mac_address()
-        
-        return jsonify({
-            'success': True,
-            'rssi': rssi,
-            'mac': mac,
-            'packets_received': radio_receiver.packet_count if hasattr(radio_receiver, 'packet_count') else 0
-        })
-    except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 400
 
 @app.route('/api/radio/configure', methods=['POST'])
@@ -804,7 +868,12 @@ def radio_send_test():
         
         gas_names = {
             0: "H2S", 1: "SO2", 2: "O2", 3: "CO", 4: "CL2",
-            5: "CO2", 6: "LEL", 7: "VOC", 8: "Tank", 9: "HCl", 10: "NH3"
+            5: "CO2", 6: "LEL", 7: "VOC", 8: "FEET", 9: "HCl",
+            10: "NH3", 11: "H2", 12: "ClO2", 13: "HCN", 14: "F2",
+            15: "HF", 16: "CH2O", 17: "NO2", 18: "O3", 19: "INCHES",
+            20: "4-20mA", 21: "Not Specified", 22: "°C", 23: "°F",
+            24: "CH4", 25: "NO", 26: "PH3", 27: "HBr", 28: "EtO",
+            29: "CH3SH", 30: "AsH3", 31: "R410A", 32: "R1234YF", 33: "R32"
         }
         gas_name = gas_names.get(gas_type, f"Gas {gas_type}")
         
@@ -1676,13 +1745,214 @@ if __name__ == '__main__':
     print("  Open your browser to: http://localhost:5000")
     print()
     print("  Features:")
-    print("    ✓ Modbus device connection and control")
-    print("    ✓ Real-time channel monitoring")
-    print("    ✓ Radio configuration and testing")
-    print("    ✓ Device diagnostics and settings")
+    print("    * Modbus device connection and control")
+    print("    * Real-time channel monitoring")
+    print("    * Radio configuration and testing")
+    print("    * Device diagnostics and settings")
+    print("    * Channel management and rogue detection")
     print()
     print("  Press Ctrl+C to stop")
     print("=" * 60)
     print()
     
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=False, use_reloader=False, allow_unsafe_werkzeug=True)
+
+# ============================================================================
+# CHANNEL MANAGEMENT API
+# ============================================================================
+
+@app.route('/api/channels/scan', methods=['GET'])
+def scan_channels():
+    """Scan all channels and categorize by activity"""
+    try:
+        if not modbus_client or not modbus_client.client:
+            return jsonify({'success': False, 'error': 'Modbus not connected'}), 400
+        
+        active = []
+        inactive = []
+        unused = []
+        
+        for channel in range(1, 33):
+            try:
+                # Get radio address (single register)
+                addr_reg = 0x00 + (channel - 1)
+                addr_result = modbus_client.read_holding_registers(addr_reg, 1)
+                radio_addr = addr_result[0]
+                
+                if radio_addr == 0:
+                    unused.append(channel)
+                    continue
+                
+                # Get time since last message (single register)
+                time_reg = 0xC0 + (channel - 1)
+                time_result = modbus_client.read_holding_registers(time_reg, 1)
+                time_since = time_result[0]
+                
+                # Get battery (Float32 - 2 registers)
+                battery_reg = 0x80 + (channel - 1) * 2
+                battery = modbus_client.read_float32(battery_reg)
+                
+                channel_info = {
+                    'channel': channel,
+                    'radio_addr': radio_addr,
+                    'time_since': time_since,
+                    'battery': round(battery, 2) if -100 < battery < 100 else 0,
+                    'active': time_since < 600
+                }
+                
+                if time_since < 600:
+                    active.append(channel_info)
+                else:
+                    inactive.append(channel_info)
+            except Exception as ch_err:
+                print(f"Error scanning channel {channel}: {ch_err}")
+                continue
+        
+        return jsonify({
+            'success': True,
+            'active': active,
+            'inactive': inactive,
+            'unused': unused
+        })
+    except Exception as e:
+        import traceback
+        print(f"Channel scan error: {traceback.format_exc()}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/channels/disable', methods=['POST'])
+def disable_channels():
+    """Disable multiple channels"""
+    try:
+        if not modbus_client or not modbus_client.client:
+            return jsonify({'success': False, 'error': 'Modbus not connected'}), 400
+        
+        data = request.get_json()
+        channels = data.get('channels', [])
+        
+        results = []
+        for channel in channels:
+            addr_reg = 0x00 + (channel - 1)
+            success = modbus_client.write_register(addr_reg, 0)
+            results.append({'channel': channel, 'success': success})
+            time.sleep(0.05)
+        
+        return jsonify({'success': True, 'results': results})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/channels/enable', methods=['POST'])
+def enable_channel():
+    """Enable a channel with specified radio address"""
+    try:
+        if not modbus_client or not modbus_client.client:
+            return jsonify({'success': False, 'error': 'Modbus not connected'}), 400
+        
+        data = request.get_json()
+        channel = data.get('channel')
+        radio_addr = data.get('radio_addr', 255)
+        
+        addr_reg = 0x00 + (channel - 1)
+        success = modbus_client.write_register(addr_reg, radio_addr)
+        
+        return jsonify({'success': success, 'channel': channel, 'radio_addr': radio_addr})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/channels/setup_scan', methods=['POST'])
+def setup_scan_channel():
+    """Setup a channel for rogue radio scanning"""
+    try:
+        if not modbus_client or not modbus_client.client:
+            return jsonify({'success': False, 'error': 'Modbus not connected'}), 400
+        
+        data = request.get_json()
+        channel = data.get('channel')
+        scan_addr = data.get('scan_addr', 255)
+        
+        addr_reg = 0x00 + (channel - 1)
+        success = modbus_client.write_register(addr_reg, scan_addr)
+        
+        return jsonify({
+            'success': success,
+            'channel': channel,
+            'scan_addr': scan_addr,
+            'message': f'Channel {channel} set to scan mode (address {scan_addr})'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/channels/monitor_rogues', methods=['POST'])
+def monitor_rogues():
+    """Monitor scan channel for rogue radios"""
+    try:
+        if not modbus_client or not modbus_client.client:
+            return jsonify({'success': False, 'error': 'Modbus not connected'}), 400
+        
+        data = request.get_json()
+        channel = data.get('channel')
+        duration = data.get('duration', 30)
+        
+        if not channel:
+            return jsonify({'success': False, 'error': 'Channel number required'}), 400
+        
+        detected = []
+        start_time = time.time()
+        errors = []
+        
+        while time.time() - start_time < duration:
+            try:
+                # Check time since last message
+                time_reg = 0xC0 + (channel - 1)
+                time_result = modbus_client.read_holding_registers(time_reg, 1)
+                time_since = time_result[0]
+                
+                # Get radio address
+                addr_reg = 0x00 + (channel - 1)
+                addr_result = modbus_client.read_holding_registers(addr_reg, 1)
+                radio_addr = addr_result[0]
+                
+                if time_since is not None and time_since < 5 and radio_addr not in detected:
+                    if radio_addr != 255 and radio_addr != 0:
+                        detected.append(radio_addr)
+                        print(f"Detected rogue radio: address {radio_addr} on channel {channel}")
+            except Exception as loop_err:
+                error_msg = str(loop_err)
+                if error_msg not in errors:
+                    errors.append(error_msg)
+                    print(f"Error during rogue scan: {error_msg}")
+            
+            time.sleep(2)
+        
+        return jsonify({
+            'success': True,
+            'detected': detected,
+            'count': len(detected),
+            'errors': errors if errors else None
+        })
+    except Exception as e:
+        import traceback
+        print(f"Rogue scan error: {traceback.format_exc()}")
+        return jsonify({'success': False, 'error': f'Error: {str(e)}'}), 500
+
+@app.route('/api/channels/auto_assign', methods=['POST'])
+def auto_assign_rogue():
+    """Auto-assign a rogue radio to an unused channel"""
+    try:
+        if not modbus_client or not modbus_client.client:
+            return jsonify({'success': False, 'error': 'Modbus not connected'}), 400
+        
+        data = request.get_json()
+        rogue_addr = data.get('rogue_addr')
+        unused_channel = data.get('unused_channel')
+        
+        addr_reg = 0x00 + (unused_channel - 1)
+        success = modbus_client.write_register(addr_reg, rogue_addr)
+        
+        return jsonify({
+            'success': success,
+            'channel': unused_channel,
+            'rogue_addr': rogue_addr,
+            'message': f'Assigned rogue radio {rogue_addr} to channel {unused_channel}'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500

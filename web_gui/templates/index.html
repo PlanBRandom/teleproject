@@ -273,8 +273,20 @@
 <body>
     <div class="container">
         <header>
-            <h1>🔬 OI Monitor Control Center</h1>
-            <p class="subtitle">Unified interface for OI-7530/7010/7032 gas monitors - Testing, Configuration & Monitoring</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>🔬 OI Monitor Control Center</h1>
+                    <p class="subtitle">Unified interface for OI-7530/7010/7032 gas monitors - Testing, Configuration & Monitoring</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="window.location.href='/diagnostic'" style="background: #3b82f6; padding: 15px 25px; font-size: 16px;">
+                        🔬 Data Source Diagnostic
+                    </button>
+                    <button onclick="window.location.href='/channels'" style="background: #10b981; padding: 15px 25px; font-size: 16px;">
+                        🔧 Channel Management
+                    </button>
+                </div>
+            </div>
         </header>
         
         <div class="grid">
@@ -1006,17 +1018,20 @@
             const container = document.getElementById('channels');
             
             if (channels.length === 0) {
-                container.innerHTML = '<p style="color: #666;">No active channels detected</p>';
+                container.innerHTML = '<p style="color: #666;">No channels available</p>';
                 return;
             }
             
+            // Show ALL channels, including inactive ones
             container.innerHTML = channels.map(ch => {
                 const alertClass = ch.value > 100 ? ' alert' : '';
+                const inactiveClass = (!ch.active || ch.value === 0) ? ' style="opacity: 0.5;"' : '';
                 return `
-                    <div class="channel-card${alertClass}">
-                        <div class="channel-number">Channel ${ch.channel}</div>
-                        <div class="channel-value">${ch.value} <span style="font-size:14px;">PPM</span></div>
+                    <div class="channel-card${alertClass}"${inactiveClass}>
+                        <div class="channel-number">Ch ${ch.channel}</div>
+                        <div class="channel-value">${ch.value.toFixed(2)} <span style="font-size:14px;">PPM</span></div>
                         <div class="channel-gas">${ch.gas_type}</div>
+                        ${!ch.active ? '<div style="font-size:10px;color:#999;">Inactive</div>' : ''}
                     </div>
                 `;
             }).join('');

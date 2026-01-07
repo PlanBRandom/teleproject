@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Source Diagnostic - OI Monitor</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel {
+            background: #374151;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #4b5563;
+        }
+        
+        .panel h2 {
+            color: #60a5fa;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-inactive {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .data-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #1f2937;
+            border-left: 4px solid #60a5fa;
+            border-radius: 4px;
+        }
+        
+        .data-item.radio {
+            border-left-color: #10b981;
+        }
+        
+        .data-item.modbus {
+            border-left-color: #f59e0b;
+        }
+        
+        .timestamp {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+        
+        .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #10b981;
+        }
+        
+        .label {
+            color: #9ca3af;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #2563eb;
+        }
+        
+        #radio-log, #modbus-log {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .counter {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .counter.radio {
+            color: #10b981;
+        }
+        
+        .counter.modbus {
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Data Source Diagnostic Tool</h1>
+        <p style="margin-bottom: 20px; color: #9ca3af;">
+            This page shows you EXACTLY what data is coming from the Radio vs Modbus.
+            Connect both and see which one is sending data!
+        </p>
+        
+        <div class="grid">
+            <!-- Radio Panel -->
+            <div class="panel">
+                <h2>
+                    📡 Radio Data (Live SocketIO Stream)
+                    <span id="radio-status" class="status-badge status-inactive">Not Listening</span>
+                </h2>
+                
+                <div class="counter radio" id="radio-count">0</div>
+                <div class="label">Radio Messages Received</div>
+                
+                <div id="radio-log">
+                    <p style="color: #6b7280;">Waiting for radio data...</p>
+                </div>
+            </div>
+            
+            <!-- Modbus Panel -->
+            <div class="panel">
+                <h2>
+                    🔌 Modbus Data (Polled from OI-7032)
+                    <span id="modbus-status" class="status-badge status-inactive">Not Connected</span>
+                </h2>
+                
+                <div class="counter modbus" id="modbus-count">0</div>
+                <div class="label">Modbus Reads Completed</div>
+                
+                <div id="modbus-log">
+                    <p style="color: #6b7280;">Click "Read Modbus" to fetch data...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <button onclick="readModbus()">🔄 Read All Modbus Channels</button>
+            <button onclick="clearLogs()">🗑️ Clear Logs</button>
+            <button onclick="window.location.href='/'">← Back to Dashboard</button>
+        </div>
+        
+        <div class="panel">
+            <h2>📊 Channel 32 Detailed View</h2>
+            <p style="color: #9ca3af; margin-bottom: 10px;">
+                Channel 32 is configured as a 4-20mA wired sensor. Here's what we're reading:
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                <div>
+                    <div class="label">Radio Address</div>
+                    <div class="value" id="ch32-radio-addr">-</div>
+                </div>
+                <div>
+                    <div class="label">Sensor Type</div>
+                    <div class="value" id="ch32-sensor-type">-</div>
+                </div>
+                <div>
+                    <div class="label">Gas Type</div>
+                    <div class="value" id="ch32-gas-type">-</div>
+                </div>
+                <div>
+                    <div class="label">Reading (mA)</div>
+                    <div class="value" id="ch32-reading">-</div>
+                </div>
+                <div>
+                    <div class="label">Scaled Value</div>
+                    <div class="value" id="ch32-scaled">-</div>
+                </div>
+                <div>
+                    <div class="label">Time Since</div>
+                    <div class="value" id="ch32-time">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const socket = io();
+        let radioCount = 0;
+        let modbusCount = 0;
+        
+        // Socket connection events
+        socket.on('connect', () => {
+            console.log('Connected to SocketIO');
+            document.getElementById('radio-status').textContent = 'Listening';
+            document.getElementById('radio-status').className = 'status-badge status-active';
+        });
+        
+        socket.on('disconnect', () => {
+            console.log('Disconnected from SocketIO');
+            document.getElementById('radio-status').textContent = 'Disconnected';
+            document.getElementById('radio-status').className = 'status-badge status-inactive';
+        });
+        
+        // Listen for RADIO data (comes via SocketIO)
+        socket.on('sensor_data', (data) => {
+            radioCount++;
+            document.getElementById('radio-count').textContent = radioCount;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const item = document.createElement('div');
+            item.className = 'data-item radio';
+            item.innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        <strong>📡 RADIO</strong> - Ch${data.channel} @${data.address}
+                    </div>
+                    <div class="timestamp">${timestamp}</div>
+                </div>
+                <div style="margin-top: 5px;">
+                    ${data.gas_type}: <strong>${data.reading.toFixed(2)}</strong> PPM
+                    ${data.battery ? ' | Battery: ' + data.battery.toFixed(1) + 'V' : ''}
+                    ${data.fault !== 'None' ? ' | ⚠️ ' + data.fault : ''}
+                </div>
+            `;
+            
+            const log = document.getElementById('radio-log');
+            if (log.firstChild && log.firstChild.textContent === 'Waiting for radio data...') {
+                log.innerHTML = '';
+            }
+            log.insertBefore(item, log.firstChild);
+            
+            // Keep only last 20 items
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+            
+            console.log('RADIO DATA:', data);
+        });
+        
+        // Read MODBUS data (manual fetch)
+        async function readModbus() {
+            try {
+                document.getElementById('modbus-status').textContent = 'Reading...';
+                document.getElementById('modbus-status').className = 'status-badge status-active';
+                
+                const response = await fetch('/api/modbus/read_channels');
+                const result = await response.json();
+                
+                if (result.success) {
+                    modbusCount++;
+                    document.getElementById('modbus-count').textContent = modbusCount;
+                    document.getElementById('modbus-status').textContent = 'Connected';
+                    
+                    const timestamp = new Date().toLocaleTimeString();
+                    const log = document.getElementById('modbus-log');
+                    
+                    if (log.firstChild && log.firstChild.textContent.includes('Click')) {
+                        log.innerHTML = '';
+                    }
+                    
+                    // Display active channels
+                    const activeChannels = result.channels.filter(ch => ch.active);
+                    activeChannels.forEach(ch => {
+                        const item = document.createElement('div');
+                        item.className = 'data-item modbus';
+                        item.innerHTML = `
+                            <div style="display: flex; justify-content: space-between;">
+                                <div>
+                                    <strong>🔌 MODBUS</strong> - Ch${ch.channel}
+                                </div>
+                                <div class="timestamp">${timestamp}</div>
+                            </div>
+                            <div style="margin-top: 5px;">
+                                ${ch.gas_type}: <strong>${ch.value.toFixed(2)}</strong> PPM
+                            </div>
+                        `;
+                        log.insertBefore(item, log.firstChild);
+                    });
+                    
+                    // Update Channel 32 details
+                    const ch32 = result.channels.find(ch => ch.channel === 32);
+                    if (ch32) {
+                        // Read additional details for channel 32
+                        readChannel32Details();
+                    }
+                    
+                    console.log('MODBUS DATA:', result);
+                } else {
+                    document.getElementById('modbus-status').textContent = 'Error';
+                    document.getElementById('modbus-status').className = 'status-badge status-inactive';
+                    alert('Modbus error: ' + result.error);
+                }
+            } catch (error) {
+                document.getElementById('modbus-status').textContent = 'Error';
+                document.getElementById('modbus-status').className = 'status-badge status-inactive';
+                alert('Error reading Modbus: ' + error);
+            }
+        }
+        
+        async function readChannel32Details() {
+            try {
+                // Read specific registers for Channel 32
+                // For now, just show what we have from the channels read
+                const response = await fetch('/api/modbus/read_channels');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const ch32 = result.channels[31]; // Channel 32 is index 31
+                    
+                    // These would need custom API endpoints to read the specific registers
+                    document.getElementById('ch32-reading').textContent = ch32.value.toFixed(2);
+                    document.getElementById('ch32-sensor-type').textContent = '4-20mA (6)';
+                    document.getElementById('ch32-gas-type').textContent = ch32.gas_type;
+                    
+                    // For 4-20mA sensor, the "reading" IS the mA value (4-20 range)
+                    // The "scaled value" would be the actual measurement after applying the sensor's scale
+                    const mA = ch32.value;
+                    const percent = ((mA - 4) / 16) * 100; // Convert 4-20mA to 0-100%
+                    document.getElementById('ch32-scaled').textContent = percent.toFixed(1) + '%';
+                }
+            } catch (error) {
+                console.error('Error reading Ch32 details:', error);
+            }
+        }
+        
+        function clearLogs() {
+            document.getElementById('radio-log').innerHTML = '<p style="color: #6b7280;">Waiting for radio data...</p>';
+            document.getElementById('modbus-log').innerHTML = '<p style="color: #6b7280;">Click "Read Modbus" to fetch data...</p>';
+            radioCount = 0;
+            modbusCount = 0;
+            document.getElementById('radio-count').textContent = '0';
+            document.getElementById('modbus-count').textContent = '0';
+        }
+        
+        // Auto-refresh Modbus every 5 seconds if connected
+        setInterval(() => {
+            const status = document.getElementById('modbus-status').textContent;
+            if (status === 'Connected') {
+                readModbus();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
