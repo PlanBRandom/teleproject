@@ -70,8 +70,14 @@ def on_message(client, userdata, msg):
             fault_display = f"✗ F{fault_code}: {fault}"
             color = "\033[91m"  # Red
         
+        # Format battery (handle string or float)
+        try:
+            battery_str = f"{float(battery):.1f}V"
+        except (ValueError, TypeError):
+            battery_str = str(battery)
+        
         # Print formatted message
-        print(f"{color}[{timestamp}] {network:12s} | Ch {channel:2d} | {gas_type:8s} | {reading_str:>10s} | Batt {battery:.1f}V | {fault_display}\033[0m")
+        print(f"{color}[{timestamp}] {network:12s} | Ch {channel:2d} | {gas_type:8s} | {reading_str:>10s} | Batt {battery_str} | {fault_display}\033[0m")
         
         # Print additional details if not normal
         if sensor_mode != 0 or fault_code != 0:

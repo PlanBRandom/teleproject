@@ -19,10 +19,10 @@ import json
 import os
 import sys
 
-# Add pipeline to path for MQTT imports
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pipeline.mqtt import MQTTPublisher, MQTTConfig
-from packet_database import PacketDatabase
+from database.packet_database import PacketDatabase
 
 # Gas type mapping
 GAS_TYPES = {

@@ -3,8 +3,12 @@ Packet Diagnostics Tool - Query packet database for F8/F14 troubleshooting
 """
 
 import sys
+import os
 import argparse
-from packet_database import PacketDatabase
+
+# Add parent directory to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from database.packet_database import PacketDatabase
 from datetime import datetime, timedelta
 
 def print_header(text):

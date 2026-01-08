@@ -1,0 +1,42 @@
+{
+  "mqtt": {
+    "broker": "a1bcc059f5f74a6d8271e8b567fecc6d.s1.eu.hivemq.cloud",
+    "port": 8883,
+    "username": "laird",
+    "password": "LairdRM024",
+    "use_tls": true
+  },
+  "monitoring": {
+    "duration_hours": 1.0,
+    "networks": [
+      "Network_15",
+      "Network_20",
+      "Network_25"
+    ],
+    "model": "OI-7010",
+    "active_network": "Network_25"
+  },
+  "radios": {
+    "Network_15": {
+      "port": "COM7",
+      "baudrate": 115200
+    },
+    "Network_20": {
+      "port": "COM12",
+      "baudrate": 115200
+    },
+    "Network_25": {
+      "port": "COM11",
+      "baudrate": 115200
+    }
+  },
+  "modbus": {
+    "port": "COM10",
+    "baudrate": 9600,
+    "slaves": {
+      "Network_15": 30,
+      "Network_20": 10,
+      "Network_25": 32
+    }
+  }
+}
