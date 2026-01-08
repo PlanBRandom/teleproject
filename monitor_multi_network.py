@@ -22,6 +22,7 @@ import sys
 # Add pipeline to path for MQTT imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pipeline.mqtt import MQTTPublisher, MQTTConfig
+from packet_database import PacketDatabase
 
 # Gas type mapping
 GAS_TYPES = {
@@ -32,8 +33,40 @@ GAS_TYPES = {
     27: "HBr", 28: "EtO", 29: "CH3SH", 30: "AsH3", 31: "R410A", 32: "R1234YF", 33: "R32"
 }
 
+# Sensor modes (bits 0-2 of byte 14)
+SENSOR_MODES = {
+    0: "Normal", 1: "Null", 2: "Calibration", 3: "Relay", 
+    4: "Radio Address", 5: "Diagnostic", 6: "Advanced Menu", 7: "Administration Menu"
+}
+
+# Sensor types (bits 3-7 of byte 14)
+SENSOR_TYPES = {
+    0: "EC", 1: "IR", 2: "CB", 3: "MOS", 4: "PID", 5: "TANK LEVEL", 6: "4-20 mA",
+    7: "SWITCH", 30: "OI-WF190", 31: "NONE SELECTED"
+}
+
+# Fault codes (bits 0-3 of byte 17) - Official Oldham Documentation
+FAULT_CODES = {
+    0: "None",
+    1: "F1: Top card lost comm with digital sensor board",
+    2: "F2: No longer assigned (update firmware)",
+    3: "F3: Low Power IR sensor beyond repair",
+    4: "F4: ADC/analog sensor board comm issue",
+    5: "F5: Unit did not Null correctly",
+    6: "F6: Unit did not Cal correctly (Autocal)",
+    7: "F7: Internal fault (update firmware)",
+    8: "F8: Two sensors with same address",
+    9: "F9: Radio timeout (no comm from sensor)",
+    10: "F10: Wired sensor not communicating",
+    11: "F11: Low Power IR temp changing too quickly",
+    12: "F12: Low Power IR element restarting",
+    13: "F13: 4-20mA fault condition (check sensor)",
+    14: "F14: Cannot see Primary Monitor (radio)",
+    15: "F15: No longer assigned (update firmware)"
+}
+
 class MultiNetworkMonitor:
-    def __init__(self, duration_hours=1, mqtt_broker="localhost", mqtt_port=1883, mqtt_username=None, mqtt_password=None):
+    def __init__(self, duration_hours=1, mqtt_broker="localhost", mqtt_port=1883, mqtt_username=None, mqtt_password=None, mqtt_use_tls=False):
         self.duration_hours = duration_hours
         self.running = False
         self.start_time = None
@@ -42,12 +75,12 @@ class MultiNetworkMonitor:
         self.radios = {
             'Network_15': {'port': 'COM7', 'baudrate': 115200, 'monitor': 'OI-7530', 'modbus_slave': 30},
             'Network_20': {'port': 'COM12', 'baudrate': 115200, 'monitor': 'OI-7010', 'modbus_slave': 10},
-            'Network_25': {'port': 'COM11', 'baudrate': 115200, 'monitor': 'OI-7032', 'modbus_slave': 3},
+            'Network_25': {'port': 'COM11', 'baudrate': 115200, 'monitor': 'OI-7032', 'modbus_slave': 32},
         }
         
         # Modbus configuration
         self.modbus_port = 'COM10'
-        self.modbus_baudrate = 19200
+        self.modbus_baudrate = 9600
         
         # MQTT configuration
         self.mqtt_enabled = mqtt_broker is not None
@@ -58,6 +91,7 @@ class MultiNetworkMonitor:
                 port=mqtt_port,
                 username=mqtt_username,
                 password=mqtt_password,
+                use_tls=mqtt_use_tls,
                 client_id="oi_multi_network_monitor",
                 base_topic="oi7500",
                 device_name="OI Multi-Network Monitor",
@@ -66,6 +100,9 @@ class MultiNetworkMonitor:
             )
             self.mqtt_publisher = MQTTPublisher(mqtt_config)
         
+        # Packet database for diagnostics
+        self.packet_db = PacketDatabase()
+        
         # Statistics
         self.stats = {
             'radios': {},
@@ -73,7 +110,7 @@ class MultiNetworkMonitor:
                 'total_bytes': 0,
                 'slave_10': {'requests': 0, 'responses': 0},
                 'slave_30': {'requests': 0, 'responses': 0},
-                'slave_3': {'requests': 0, 'responses': 0},
+                'slave_32': {'requests': 0, 'responses': 0},
             },
             'start_time': None,
             'last_update': None,
@@ -102,7 +139,19 @@ class MultiNetworkMonitor:
         self.stats_file = f'{self.log_dir}/stats_{timestamp}.json'
     
     def decode_packet(self, data):
-        """Decode RM024 API transmit packet (0x81 frame)."""
+        """Decode RM024 API transmit packet (0x81 frame).
+        
+        The 0x81 frame contains Laird API mode headers + WireFree Protocol 1 payload:
+        - Bytes 0-6: Laird API mode header (frame type, MAC, RSSI, etc)
+        - Bytes 7+: WireFree Protocol 1 payload:
+            - Bytes 7-8: Transmitter address (channel appears here at byte 8)
+            - Byte 9: Protocol number
+            - Bytes 10-13: Reading (IEEE 754 32-bit float, big-endian)
+            - Byte 14: Sensor Mode (bits 0-2) + Sensor Type (bits 3-7)
+            - Byte 15: Battery Reading  
+            - Byte 16: Gas Type (bits 0-6) + Battery Scale (bit 7)
+            - Byte 17: Fault Code (bits 0-3) + Precision (bits 4-6) + Text Flag (bit 7)
+        """
         if len(data) < 24 or data[0] != 0x81:
             return None
         
@@ -110,15 +159,45 @@ class MultiNetworkMonitor:
             channel = data[8]
             reading_bytes = data[10:14]
             reading = struct.unpack('>f', reading_bytes)[0]
-            gas_type = data[14]
-            status = data[15]
+            
+            # Byte 14: Mode/Type
+            mode_type = data[14]
+            sensor_mode = mode_type & 0x07  # Bits 0-2
+            sensor_type = (mode_type >> 3) & 0x1F  # Bits 3-7
+            
+            # Byte 15: Battery Reading
+            battery_reading = data[15]
+            
+            # Byte 16: Gas Type + Battery Scale
+            gas_type_and_scale = data[16]  # Fixed: was data[14] (Mode/Type)
+            gas_type = gas_type_and_scale & 0x7F  # Bits 0-6
+            battery_scale = (gas_type_and_scale >> 7) & 0x01  # Bit 7
+            
+            # Byte 17: Fault/Precision/Text
+            fault_prec_text = data[17] if len(data) > 17 else 0
+            fault_code = fault_prec_text & 0x0F  # Bits 0-3
+            precision = (fault_prec_text >> 4) & 0x07  # Bits 4-6
+            has_text = (fault_prec_text >> 7) & 0x01  # Bit 7
+            
+            # Calculate actual battery voltage based on scale
+            if battery_scale == 0:
+                battery_voltage = battery_reading / 10.0
+            else:
+                battery_voltage = float(battery_reading)
             
             return {
                 'channel': channel,
                 'reading': reading,
                 'gas_type': gas_type,
                 'gas_name': GAS_TYPES.get(gas_type, f"Unknown({gas_type})"),
-                'status': status,
+                'sensor_mode': sensor_mode,
+                'sensor_type': sensor_type,
+                'battery_reading': battery_reading,
+                'battery_voltage': battery_voltage,
+                'battery_scale': battery_scale,
+                'fault_code': fault_code,
+                'precision': precision,
+                'has_text': has_text,
             }
         except:
             return None
@@ -150,6 +229,9 @@ class MultiNetworkMonitor:
                     log_file.write(f"[{now}] RX: {len(data)} bytes - {data.hex()}\n")
                     log_file.flush()
                     
+                    # Store raw data in database
+                    self.packet_db.log_raw_packet(network_name, data, frame_type="0x81")
+                    
                     # Try to extract complete 24-byte 0x81 packets
                     while len(buffer) >= 24:
                         # Look for 0x81 frame
@@ -165,14 +247,33 @@ class MultiNetworkMonitor:
                                 self.stats['radios'][network_name]['channels'][decoded['channel']] += 1
                                 self.stats['radios'][network_name]['gas_types'][decoded['gas_name']] += 1
                                 
+                                # Store decoded packet in database (with fault tracking)
+                                decoded['transmitter_address'] = decoded['channel']  # Add address field
+                                decoded['protocol'] = 1  # Protocol 1
+                                fault_name = FAULT_CODES.get(decoded.get('fault_code', 0), "None")
+                                decoded['fault_name'] = fault_name
+                                self.packet_db.log_decoded_packet(network_name, decoded)
+                                
                                 # Log analysis
                                 now = datetime.now().isoformat()
+                                
+                                # Format precision-aware reading
+                                precision = decoded.get('precision', 2)
+                                reading_str = f"{decoded['reading']:.{precision}f}"
+                                
+                                # Format fault if present
+                                fault_str = ""
+                                if decoded.get('fault_code', 0) != 0:
+                                    fault_name = FAULT_CODES.get(decoded['fault_code'], f"Code{decoded['fault_code']}")
+                                    fault_str = f" | FAULT: {fault_name}"
+                                
                                 self.analysis_log.write(
                                     f"[{now}] {network_name:12s} | "
                                     f"Ch {decoded['channel']:2d} | "
                                     f"{decoded['gas_name']:8s} | "
-                                    f"{decoded['reading']:8.2f} ppm | "
-                                    f"Status 0x{decoded['status']:02X}\n"
+                                    f"{reading_str:>10s} | "
+                                    f"Batt {decoded.get('battery_voltage', 0):.1f}V"
+                                    f"{fault_str}\n"
                                 )
                                 self.analysis_log.flush()
                                 
@@ -215,8 +316,8 @@ class MultiNetworkMonitor:
                         slave_id = data[0]
                         function_code = data[1]
                         
-                        if slave_id == 3:
-                            self.stats['modbus']['slave_3']['responses'] += 1
+                        if slave_id == 32:
+                            self.stats['modbus']['slave_32']['responses'] += 1
                         elif slave_id == 10:
                             self.stats['modbus']['slave_10']['responses'] += 1
                         elif slave_id == 30:
@@ -276,15 +377,27 @@ class MultiNetworkMonitor:
             channel = decoded['channel']
             reading = decoded['reading']
             gas_name = decoded['gas_name']
-            status = decoded['status']
+            gas_type = decoded.get('gas_type', 0)
+            battery_voltage = decoded.get('battery_voltage', 0)
+            fault_code = decoded.get('fault_code', 0)
+            fault_name = FAULT_CODES.get(fault_code, "Unknown") if fault_code else "None"
+            precision = decoded.get('precision', 2)
+            sensor_mode = decoded.get('sensor_mode', 0)
+            sensor_type = decoded.get('sensor_type', 0)
             
             # Publish to network-specific topic
             topic = f"oi7500/network/{network_name}/channel_{channel}/state"
             payload = {
                 "channel": channel,
-                "reading": reading,
+                "reading": round(reading, precision),
                 "gas_type": gas_name,
-                "status": status,
+                "gas_type_code": gas_type,
+                "battery_voltage": battery_voltage,
+                "fault_code": fault_code,
+                "fault": fault_name,
+                "precision": precision,
+                "sensor_mode": sensor_mode,
+                "sensor_type": sensor_type,
                 "network": network_name,
                 "timestamp": datetime.now().isoformat()
             }
@@ -294,9 +407,10 @@ class MultiNetworkMonitor:
             topic_agg = f"oi7500/channels/channel_{channel}/state"
             payload_agg = {
                 "channel": channel,
-                "reading": reading,
+                "reading": round(reading, precision),
                 "gas_type": gas_name,
-                "status": status,
+                "battery_voltage": battery_voltage,
+                "fault": fault_name,
                 "source_network": network_name,
                 "timestamp": datetime.now().isoformat()
             }
@@ -493,6 +607,9 @@ class MultiNetworkMonitor:
         self.modbus_log.close()
         self.analysis_log.close()
         
+        # Calculate elapsed time
+        elapsed = (datetime.now() - self.start_time).total_seconds()
+        
         # Publish final status to MQTT
         if self.mqtt_enabled and self.mqtt_publisher and self.mqtt_publisher.connected:
             topic = "oi7500/monitor/status"
@@ -531,7 +648,7 @@ class MultiNetworkMonitor:
         
         print(f"\nModbus:")
         print(f"  Total bytes: {self.stats['modbus']['total_bytes']:,}")
-        print(f"  Slave 3 (OI-7032): {self.stats['modbus']['slave_3']['responses']} responses")
+        print(f"  Slave 32 (OI-7032): {self.stats['modbus']['slave_32']['responses']} responses")
         print(f"  Slave 10 (OI-7010): {self.stats['modbus']['slave_10']['responses']} responses")
         print(f"  Slave 30 (OI-7530): {self.stats['modbus']['slave_30']['responses']} responses")
         
@@ -553,6 +670,8 @@ if __name__ == '__main__':
                         help='MQTT username (optional)')
     parser.add_argument('--mqtt-password', type=str, default=None,
                         help='MQTT password (optional)')
+    parser.add_argument('--mqtt-use-tls', action='store_true',
+                        help='Enable TLS/SSL for MQTT (auto-enabled for port 8883)')
     parser.add_argument('--no-mqtt', action='store_true',
                         help='Disable MQTT reporting')
     
@@ -566,6 +685,7 @@ if __name__ == '__main__':
         mqtt_broker=mqtt_broker,
         mqtt_port=args.mqtt_port,
         mqtt_username=args.mqtt_username,
-        mqtt_password=args.mqtt_password
+        mqtt_password=args.mqtt_password,
+        mqtt_use_tls=args.mqtt_use_tls
     )
     monitor.run()

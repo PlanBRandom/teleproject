@@ -584,18 +584,24 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Fault Code</label>
+                        <label>Fault Code <a href="#fault-reference" style="font-size: 11px; color: #667eea;">📖 View Reference</a></label>
                         <select id="test-fault">
-                            <option value="0">None</option>
-                            <option value="1">Sensor Board Timeout</option>
-                            <option value="2">Bad Reading</option>
-                            <option value="3">Current Draw Too High</option>
-                            <option value="4">ADC Not Responding</option>
-                            <option value="5">Error During Null</option>
-                            <option value="7">Checksum Error</option>
-                            <option value="8">Duplicate Otis Address (F8 Diagnostic)</option>
-                            <option value="9">Sensor Radio Timeout</option>
-                            <option value="10">Wired Sensor Not Connected</option>
+                            <option value="0">F0 - None</option>
+                            <option value="1">F1 - Top card lost comm with digital sensor board</option>
+                            <option value="2">F2 - No longer assigned (update firmware)</option>
+                            <option value="3">F3 - Low Power IR sensor beyond repair</option>
+                            <option value="4">F4 - ADC/analog sensor board comm issue</option>
+                            <option value="5">F5 - Unit did not Null correctly</option>
+                            <option value="6">F6 - Unit did not Cal correctly (Autocal)</option>
+                            <option value="7">F7 - Internal fault (update firmware)</option>
+                            <option value="8">F8 - Two sensors with same address</option>
+                            <option value="9">F9 - Radio timeout (no comm from sensor)</option>
+                            <option value="10">F10 - Wired sensor not communicating</option>
+                            <option value="11">F11 - Low Power IR temp changing too quickly</option>
+                            <option value="12">F12 - Low Power IR element restarting</option>
+                            <option value="13">F13 - 4-20mA fault condition (check sensor)</option>
+                            <option value="14">F14 - Cannot see Primary Monitor (radio)</option>
+                            <option value="15">F15 - No longer assigned (update firmware)</option>
                         </select>
                     </div>
                     
@@ -630,6 +636,113 @@
                         </div>
                         
                         <button onclick="sendF8AddressChange()">🔧 Send Address Change Command</button>
+                    </div>
+                    
+                    <!-- Fault Code Reference Table -->
+                    <div id="fault-reference" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+                        <h3 style="font-size: 16px; color: #667eea; margin-bottom: 15px;">📖 Fault Code Reference (Official Oldham)</h3>
+                        
+                        <div style="max-height: 400px; overflow-y: auto; font-size: 12px;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead style="position: sticky; top: 0; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <tr>
+                                        <th style="padding: 8px; text-align: left; border-bottom: 2px solid #e5e7eb;">Code</th>
+                                        <th style="padding: 8px; text-align: left; border-bottom: 2px solid #e5e7eb;">Description</th>
+                                        <th style="padding: 8px; text-align: left; border-bottom: 2px solid #e5e7eb;">Solution</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #10b981;">F0</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">None</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">No fault detected</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #ef4444;">F1</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Top card lost comm with digital sensor board</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Check connections and/or try new digital sensor board (OI-6000-X)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #f59e0b;">F2</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">No longer assigned</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">⚠️ Update firmware if displayed</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #ef4444;">F3</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Low Power IR sensor beyond repair</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">❌ Sensor must be replaced</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #ef4444;">F4</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">ADC/analog sensor board comm issue</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Check connections, orientation of analog board, or replace analog sensor board. For Low Power IR, may appear briefly on boot (normal)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #f59e0b;">F5</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Unit did not Null correctly</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Check for gas presence. If no gas, replace sensor element or analog board. For IR: retry null, replace element if persists</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #f59e0b;">F6</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Unit did not Cal correctly (Autocal)</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Verify gas is present and correct concentration. Check Sensor Voltage vs Null Voltage. Replace sensor element if needed</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #f59e0b;">F7</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Internal fault</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">⚠️ Update firmware if displayed</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #ef4444;">F8</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Two sensors with same address</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Check all units and ensure different addresses. Use F8 command above to change address</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #f59e0b;">F9</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Radio timeout (no comm from sensor)</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Check battery, antenna, cable, obstructions, weather. Default timeout: 10 minutes</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #ef4444;">F10</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Wired sensor not communicating</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Check all connections. For 4-20mA, use current meter inline to verify current</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #3b82f6;">F11</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Low Power IR temp changing too quickly</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">✓ Fault will auto-clear when temperature stabilizes</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #3b82f6;">F12</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Low Power IR element restarting</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">✓ Should clear on its own. If persists, replace batteries or sensor element</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #f59e0b;">F13</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">4-20mA fault condition</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Monitor does not know exact fault. Check sensor assembly for specific fault code</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #ef4444;">F14</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Cannot see Primary Monitor (radio)</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">Check Primary is ON, Network ID matches. Try resetting both sensor and Primary. See F9 solutions</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: bold; color: #f59e0b;">F15</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">No longer assigned</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">⚠️ Update firmware if displayed</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div style="margin-top: 15px; padding: 10px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 4px;">
+                                <strong>Color Legend:</strong><br>
+                                <span style="color: #10b981;">● Green (F0):</span> No fault<br>
+                                <span style="color: #3b82f6;">● Blue (F11-F12):</span> Auto-clearing faults<br>
+                                <span style="color: #f59e0b;">● Orange:</span> Configuration/operational issues<br>
+                                <span style="color: #ef4444;">● Red:</span> Hardware/communication failures
+                            </div>
+                        </div>
                     </div>
                 </div>
                 

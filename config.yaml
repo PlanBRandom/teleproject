@@ -1,4 +1,4 @@
-# OI-7530/7010 Modbus to MQTT Bridge Configuration
+# OI-7032/7530/7010 Modbus to MQTT Bridge Configuration
 
 # Modbus connection settings
 modbus:
@@ -6,7 +6,7 @@ modbus:
   
   # RTU (Serial) settings - for USB/RS485 converter
   port: COM10  # Windows: COM3, Linux: /dev/ttyUSB0, /dev/ttyAMA0
-  baudrate: 9600  # Modbus RTU uses 9600
+  baudrate: 9600  # Correct baudrate for OI monitors
   bytesize: 8
   parity: N  # N=None, E=Even, O=Odd
   stopbits: 1
@@ -22,10 +22,11 @@ modbus:
 
 # MQTT broker settings
 mqtt:
-  broker: localhost  # MQTT broker address (Home Assistant IP or localhost)
-  port: 1883
-  username: null  # MQTT username (optional)
-  password: null  # MQTT password (optional)
+  broker: a1bcc059f5f74a6d8271e8b567fecc6d.s1.eu.hivemq.cloud  # HiveMQ Cloud broker
+  port: 8883  # TLS MQTT port
+  username: laird  # MQTT username
+  password: LairdRM024  # MQTT password
+  use_tls: true  # Enable TLS for HiveMQ Cloud
   
   # Device identification
   device_name: OI-7032 Gas Monitor
