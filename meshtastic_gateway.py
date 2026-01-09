@@ -239,12 +239,20 @@ class MeshtasticGateway:
             raise
     
     def setup_meshtastic(self):
-        """Setup Meshtastic serial interface"""
+        """Setup Meshtastic interface (serial or TCP)"""
         try:
             mesh_port = self.config['gateway_node']['meshtastic_port']
+            conn_type = self.config['gateway_node'].get('connection_type', 'serial')
             
-            self.log(f"Connecting to Meshtastic gateway: {mesh_port}")
-            self.mesh_interface = meshtastic.serial_interface.SerialInterface(mesh_port)
+            self.log(f"Connecting to Meshtastic device: {mesh_port} ({conn_type})...")
+            
+            if conn_type == 'tcp':
+                # WiFi/Network connection
+                import meshtastic.tcp_interface
+                self.mesh_interface = meshtastic.tcp_interface.TCPInterface(hostname=mesh_port)
+            else:
+                # Serial/USB connection
+                self.mesh_interface = meshtastic.serial_interface.SerialInterface(mesh_port)
             
             # Subscribe to receive events
             pub.subscribe(self.on_mesh_receive, "meshtastic.receive")

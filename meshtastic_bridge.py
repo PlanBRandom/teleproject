@@ -160,11 +160,12 @@ class MeshtasticBridge:
             if not payload:
                 return
             
-            # Send via Meshtastic
+            # Send via Meshtastic on Channel 1 (OI7500 private channel)
             if self.mesh_interface:
                 self.mesh_interface.sendData(
                     payload,
                     portNum=meshtastic.portnums_pb2.PRIVATE_APP,
+                    channelIndex=1,  # Use Channel 1 (OI7500)
                     wantAck=False,  # No ACK for faster transmission
                     wantResponse=False
                 )
@@ -198,9 +199,11 @@ class MeshtasticBridge:
             self.mqtt_connected = True
             self.reconnect_attempts = 0
             mqtt_cfg = self.config['mqtt_source']
-            topic = f"{mqtt_cfg['topic_prefix']}/channel+"
-            client.subscribe(topic)
-            self.log(f"✓ MQTT connected - Subscribed to: {topic}")
+            # Subscribe to all channel topics (01-32)
+            for i in range(1, 33):
+                topic = f"{mqtt_cfg['topic_prefix']}/channel{i:02d}"
+                client.subscribe(topic)
+            self.log(f"✓ MQTT connected - Subscribed to: {mqtt_cfg['topic_prefix']}/channel##")
         else:
             self.mqtt_connected = False
             self.log(f"MQTT connection failed with code: {rc}", "ERROR")

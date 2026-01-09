@@ -1,0 +1,28 @@
+{
+  "device": {
+    "model": "OI-7530",
+    "radio_port": "COM11",
+    "radio_baud": 115200,
+    "network": "Network_25"
+  },
+  "modbus": {
+    "enabled": false,
+    "port": "COM10",
+    "baud": 9600,
+    "slave_id": 32
+  },
+  "mqtt": {
+    "enabled": true,
+    "broker": "localhost",
+    "port": 1883,
+    "username": "",
+    "password": "",
+    "use_tls": false,
+    "topic_prefix": "oi7500"
+  },
+  "logging": {
+    "enabled": true,
+    "file": "simple_monitor_com11.log",
+    "console": true
+  }
+}

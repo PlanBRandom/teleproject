@@ -1,13 +1,14 @@
 {
   "edge_node": {
     "name": "OI-7500-Edge",
-    "meshtastic_port": "/dev/ttyUSB2",
+    "meshtastic_port": "COM16",
     "location_name": "Remote Site A"
   },
   "gateway_node": {
     "name": "OI-7500-Gateway",
-    "meshtastic_port": "/dev/ttyUSB0",
-    "location_name": "Central Hub"
+    "meshtastic_port": "10.20.0.172",
+    "connection_type": "tcp",
+    "location_name": "Roof Node (WiFi)"
   },
   "mqtt_source": {
     "broker": "localhost",
@@ -29,6 +30,8 @@
     "enabled": true,
     "forward_interval": 5,
     "compress_data": true,
-    "only_forward_faults": false
+    "only_forward_faults": false,
+    "channel_index": 1,
+    "channel_name": "OI7500"
   }
 }
