@@ -120,7 +120,7 @@ class MeshtasticGateway:
             payload = json.dumps(data)
             self.mqtt_client.publish(topic, payload)
             
-            fault_indicator = "⚠️" if data['fault_code'] > 0 else "✓"
+            fault_indicator = "[FAULT]" if data['fault_code'] > 0 else "[OK]"
             self.log(
                 f"{fault_indicator} Published CH{data['channel']:02d} → {topic} | "
                 f"{data['gas_type']} {data['reading']:.1f} | "
@@ -190,7 +190,7 @@ class MeshtasticGateway:
         """MQTT connection callback"""
         if rc == 0:
             self.mqtt_connected = True
-            self.log(f"✓ MQTT connected to cloud broker")
+            self.log(f"[OK] MQTT connected to cloud broker")
         else:
             self.mqtt_connected = False
             self.log(f"MQTT connection failed with code: {rc}", "ERROR")
@@ -270,8 +270,8 @@ class MeshtasticGateway:
         now = time.time()
         if now - self.last_heartbeat >= 60:  # Every minute
             self.last_heartbeat = now
-            mqtt_status = "✓" if self.mqtt_connected else "✗"
-            mesh_status = "✓" if self.mesh_connected else "✗"
+            mqtt_status = "[OK]" if self.mqtt_connected else "[FAIL]"
+            mesh_status = "[OK]" if self.mesh_connected else "[FAIL]"
             
             stats_msg = (
                 f"💓 Status: MQTT {mqtt_status} | Mesh {mesh_status} | "
@@ -304,7 +304,7 @@ class MeshtasticGateway:
             self.log(f"Failed to setup MQTT: {e}", "ERROR")
             return
         
-        self.log("🚀 Gateway active - receiving from mesh and publishing to MQTT")
+        self.log("[ACTIVE] Gateway active - receiving from mesh and publishing to MQTT")
         self.log("Press Ctrl+C to stop")
         self.log("-"*80)
         

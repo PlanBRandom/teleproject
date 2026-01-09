@@ -25,7 +25,7 @@ def configure_node(port, psk="everythingisfine"):
     
     # Get node info
     node_info = interface.getMyNodeInfo()
-    print(f"\n✓ Connected to: {node_info['user']['longName']} ({node_info['user']['shortName']})")
+    print(f"\n[OK] Connected to: {node_info['user']['longName']} ({node_info['user']['shortName']})")
     print(f"  ID: {node_info['user']['id']}")
     print(f"  Hardware: {node_info['user']['hwModel']}")
     if 'deviceMetrics' in node_info:
@@ -44,7 +44,7 @@ def configure_node(port, psk="everythingisfine"):
     if len(channels) > 1 and channels[1].role != 0:
         ch1_name = channels[1].settings.name
         if ch1_name == "OI7500" and channels[1].settings.psk:
-            print(f"\n✓ Channel 1 (OI7500) already configured!")
+            print(f"\n[OK] Channel 1 (OI7500) already configured!")
             print(f"  Uplink: {channels[1].settings.uplink_enabled}")
             print(f"  Downlink: {channels[1].settings.downlink_enabled}")
             interface.close()
@@ -67,7 +67,7 @@ def configure_node(port, psk="everythingisfine"):
     # Write the channel back
     interface.localNode.writeChannel(1)
     
-    print(f"✓ Channel 1 configured!")
+    print(f"[OK] Channel 1 configured!")
     print(f"\nWaiting for device to apply settings...")
     import time
     time.sleep(3)
@@ -82,16 +82,16 @@ def configure_node(port, psk="everythingisfine"):
     for i, ch in enumerate(channels):
         if ch.role != 0:
             ch_name = ch.settings.name if ch.settings.name else "(unnamed)"
-            has_psk = "✓" if ch.settings.psk else "✗"
-            uplink = "✓" if ch.settings.uplink_enabled else "✗"
-            downlink = "✓" if ch.settings.downlink_enabled else "✗"
+            has_psk = "[OK]" if ch.settings.psk else "[NO]"
+            uplink = "[OK]" if ch.settings.uplink_enabled else "[NO]"
+            downlink = "[OK]" if ch.settings.downlink_enabled else "[NO]"
             print(f"  Channel {i}: {ch_name}")
             print(f"    PSK: {has_psk} | Uplink: {uplink} | Downlink: {downlink}")
     
     interface.close()
     
     print(f"\n{'='*80}")
-    print(f"✓ CONFIGURATION COMPLETE!")
+    print(f"[OK] CONFIGURATION COMPLETE!")
     print(f"{'='*80}\n")
     
     return True
@@ -110,6 +110,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n\nConfiguration cancelled by user")
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        print(f"\n[ERROR] Error: {e}")
         import traceback
         traceback.print_exc()

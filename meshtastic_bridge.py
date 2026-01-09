@@ -172,7 +172,7 @@ class MeshtasticBridge:
                 
                 self.packet_count += 1
                 
-                fault_indicator = "⚠️" if fault_code > 0 else "✓"
+                fault_indicator = "[FAULT]" if fault_code > 0 else "[OK]"
                 self.log(
                     f"{fault_indicator} Forwarded CH{channel:02d} [{message_type}] "
                     f"{data['gas_type']} {data['reading']:.1f} "
@@ -203,7 +203,7 @@ class MeshtasticBridge:
             for i in range(1, 33):
                 topic = f"{mqtt_cfg['topic_prefix']}/channel{i:02d}"
                 client.subscribe(topic)
-            self.log(f"✓ MQTT connected - Subscribed to: {mqtt_cfg['topic_prefix']}/channel##")
+            self.log(f"[OK] MQTT connected - Subscribed to: {mqtt_cfg['topic_prefix']}/channel##")
         else:
             self.mqtt_connected = False
             self.log(f"MQTT connection failed with code: {rc}", "ERROR")
@@ -212,7 +212,7 @@ class MeshtasticBridge:
         """MQTT disconnect callback"""
         self.mqtt_connected = False
         if rc != 0:
-            self.log(f"⚠️ MQTT disconnected unexpectedly (code {rc})", "WARN")
+            self.log(f"[WARN] MQTT disconnected unexpectedly (code {rc})", "WARN")
     
     def setup_mqtt(self):
         """Setup MQTT connection to local broker"""
@@ -268,10 +268,10 @@ class MeshtasticBridge:
             try:
                 node_info = self.mesh_interface.getMyNodeInfo()
                 self.mesh_connected = True
-                self.log(f"✓ Meshtastic connected: {node_info.get('user', {}).get('longName', 'Unknown')}")
+                self.log(f"[OK] Meshtastic connected: {node_info.get('user', {}).get('longName', 'Unknown')}")
             except:
                 self.mesh_connected = True  # Interface created, might get info later
-                self.log("✓ Meshtastic interface created")
+                self.log("[OK] Meshtastic interface created")
             
         except Exception as e:
             self.mesh_connected = False
@@ -282,7 +282,7 @@ class MeshtasticBridge:
         """Monitor and reconnect if needed"""
         # Check MQTT
         if not self.mqtt_connected:
-            self.log("⚠️ MQTT disconnected, attempting reconnect...", "WARN")
+            self.log("[WARN] MQTT disconnected, attempting reconnect...", "WARN")
             try:
                 self.mqtt_client.reconnect()
             except:
@@ -290,7 +290,7 @@ class MeshtasticBridge:
         
         # Check Meshtastic
         if self.mesh_interface is None:
-            self.log("⚠️ Meshtastic disconnected, attempting reconnect...", "WARN")
+            self.log("[WARN] Meshtastic disconnected, attempting reconnect...", "WARN")
             try:
                 self.setup_meshtastic()
             except:
@@ -301,8 +301,8 @@ class MeshtasticBridge:
         now = time.time()
         if now - self.last_heartbeat >= 60:  # Every minute
             self.last_heartbeat = now
-            mqtt_status = "✓" if self.mqtt_connected else "✗"
-            mesh_status = "✓" if self.mesh_connected else "✗"
+            mqtt_status = "[OK]" if self.mqtt_connected else "[FAIL]"
+            mesh_status = "[OK]" if self.mesh_connected else "[FAIL]"
             self.log(
                 f"💓 Status: MQTT {mqtt_status} | Mesh {mesh_status} | "
                 f"Forwarded: {self.packet_count} packets"
@@ -331,7 +331,7 @@ class MeshtasticBridge:
             self.log(f"Failed to setup MQTT: {e}", "ERROR")
             return
         
-        self.log("🚀 Bridge active - forwarding telemetry to mesh network")
+        self.log("[ACTIVE] Bridge active - forwarding telemetry to mesh network")
         self.log("Press Ctrl+C to stop")
         self.log("-"*80)
         

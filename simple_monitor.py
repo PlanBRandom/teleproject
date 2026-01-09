@@ -231,6 +231,9 @@ class SimpleMonitor:
         
         self.running = True
         buffer = bytearray()
+        last_packet_time = time.time()
+        error_count = 0
+        max_errors = 10
         
         try:
             while self.running:
@@ -239,38 +242,71 @@ class SimpleMonitor:
                     self.log(f"Duration complete ({duration_minutes} minutes)")
                     break
                 
-                # Read data
-                if ser.in_waiting > 0:
-                    data = ser.read(ser.in_waiting)
-                    buffer.extend(data)
+                # Read data with error recovery
+                try:
+                    if ser.in_waiting > 0:
+                        data = ser.read(ser.in_waiting)
+                        buffer.extend(data)
+                        last_packet_time = time.time()
+                        error_count = 0  # Reset error count on successful read
+                        
+                        # Look for packet start (0x53, 0x3F)
+                        while len(buffer) >= 20:
+                            if buffer[0] == 0x53 and buffer[1] == 0x3F:
+                                packet = buffer[:20]
+                                buffer = buffer[20:]
+                                
+                                # Decode packet
+                                decoded = self.decode_protocol1(packet)
+                                if decoded:
+                                    self.packet_count += 1
+                                    
+                                    # Display
+                                    print(self.format_packet_display(decoded))
+                                    
+                                    # Publish to MQTT
+                                    if self.mqtt_client:
+                                        topic = f"channel{decoded['channel']:02d}"
+                                        self.publish_mqtt(topic, decoded)
+                            else:
+                                buffer = buffer[1:]
                     
-                    # Look for packet start (0x53, 0x3F)
-                    while len(buffer) >= 20:
-                        if buffer[0] == 0x53 and buffer[1] == 0x3F:
-                            packet = buffer[:20]
-                            buffer = buffer[20:]
-                            
-                            # Decode packet
-                            decoded = self.decode_protocol1(packet)
-                            if decoded:
-                                self.packet_count += 1
-                                
-                                # Display
-                                print(self.format_packet_display(decoded))
-                                
-                                # Publish to MQTT
-                                if self.mqtt_client:
-                                    topic = f"channel{decoded['channel']:02d}"
-                                    self.publish_mqtt(topic, decoded)
-                        else:
-                            buffer = buffer[1:]
-                
-                time.sleep(0.01)
+                    # Warning if no data for 5 minutes
+                    if time.time() - last_packet_time > 300:
+                        self.log("No data received for 5 minutes - radio may be offline", "WARNING")
+                        last_packet_time = time.time()  # Reset to avoid spam
+                    
+                    time.sleep(0.01)
+                    
+                except serial.SerialException as e:
+                    error_count += 1
+                    self.log(f"Serial port error ({error_count}/{max_errors}): {e}", "ERROR")
+                    
+                    if error_count >= max_errors:
+                        self.log("Too many serial errors, giving up", "ERROR")
+                        break
+                    
+                    # Try to recover
+                    try:
+                        ser.close()
+                        time.sleep(2)
+                        ser = serial.Serial(
+                            self.config['device']['radio_port'],
+                            self.config['device']['radio_baud'],
+                            timeout=1
+                        )
+                        self.log("Serial port reopened successfully")
+                        error_count = 0
+                    except Exception as recover_error:
+                        self.log(f"Failed to recover serial port: {recover_error}", "ERROR")
+                        time.sleep(5)
         
         except KeyboardInterrupt:
             self.log("Monitoring stopped by user")
         except Exception as e:
-            self.log(f"Error during monitoring: {e}", "ERROR")
+            self.log(f"Fatal error during monitoring: {e}", "ERROR")
+            import traceback
+            self.log(traceback.format_exc(), "ERROR")
         finally:
             ser.close()
             if self.mqtt_client:
