@@ -588,20 +588,21 @@ class RadioReceiver:
                     break
                 
                 # Extract the Protocol 1/2/7 data (starts at offset 7 in payload)
+                # Payload structure: [RSSI][MAC:3][Channel:2][Protocol][Float:4][Mode][Battery][Gas][Fault][Checksum]
+                # The payload length includes the checksum as the last byte
+                # For repeated packets, sensor MAC+RSSI are AFTER the payload (not counted in length)
                 protocol_data_start = 7
-                if is_repeated:
-                    # Protocol data ends 4 bytes before the end (before sensor MAC + RSSI)
-                    protocol_data = payload[protocol_data_start:-4]
-                else:
-                    # Protocol data goes to end of payload
-                    protocol_data = payload[protocol_data_start:]
+                protocol_data = payload[protocol_data_start:]  # Includes checksum at end
+                
+                print(f"[RADIO] Protocol data ({len(protocol_data)} bytes): {bytes(protocol_data).hex()}")
                 
                 # Prepend channel as 2-byte address for Protocol parsing
+                # Gen2 format: [Channel:2][Protocol][Float:4][Mode][Battery][Gas][Fault][Checksum]
                 gen2_packet = bytearray()
                 gen2_packet.append((channel >> 8) & 0xFF)  # Channel high byte
                 gen2_packet.append(channel & 0xFF)         # Channel low byte
-                gen2_packet.append(protocol)               # Protocol number
-                gen2_packet.extend(protocol_data)          # Rest of data
+                gen2_packet.append(protocol)               # Protocol number (without bit 7)
+                gen2_packet.extend(protocol_data)          # Rest of data including checksum
                 
                 print(f"[RADIO] Reconstructed Gen2 packet ({len(gen2_packet)} bytes): {bytes(gen2_packet[:20]).hex()}")
                 
