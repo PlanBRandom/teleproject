@@ -6,7 +6,7 @@ modbus:
   
   # RTU (Serial) settings - for USB/RS485 converter
   port: COM10  # Windows: COM3, Linux: /dev/ttyUSB0, /dev/ttyAMA0
-  baudrate: 9600  # Correct baudrate for OI monitors
+  baudrate: 19200  # Correct baudrate for OI monitors
   bytesize: 8
   parity: N  # N=None, E=Even, O=Odd
   stopbits: 1

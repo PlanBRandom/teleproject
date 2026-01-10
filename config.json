@@ -32,7 +32,7 @@
   },
   "modbus": {
     "port": "COM10",
-    "baudrate": 9600,
+    "baudrate": 19200,
     "slaves": {
       "Network_15": 30,
       "Network_20": 10,

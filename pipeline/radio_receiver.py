@@ -523,55 +523,122 @@ class RadioReceiver:
             self.buffer = self.buffer[total_len:]
     
     def _process_rm024_api_frames(self):
-        """Process RM024 API Receive mode frames.
+        """Process RM024 API frames (0x81/0x82).
         
-        Format 1 (0xCC - API receive with MAC/RSSI):
-        [0xCC][SrcMAC[3]][SrcMAC[2]][SrcMAC[1]][SrcMAC[0]][RSSI][Gen2 Payload...]
+        Frame format (from OI-9850 LairdRadio.c):
+        [0x81][Len][0x00][RSSI][RepeaterMAC:3][Channel:2][Protocol][...Data...][Checksum]
+        [Optional if Protocol bit 7 set: SensorMAC:3][SensorRSSI]
         
-        Format 2 (0x81 - Length-prefixed):
-        [0x81][LenH][LenL][Gen2 Payload...]
+        Total frame = 3 + Len (does NOT include optional 4 bytes at end for repeated packets)
         """
         print(f"[RADIO] _process_rm024_api_frames called, buffer size: {len(self.buffer)}, first bytes: {bytes(self.buffer[:8]).hex()}")
         
         while len(self.buffer) >= 4:
             print(f"[RADIO] Buffer start: 0x{self.buffer[0]:02x}")
             
-            # Check for 0x81 length-prefixed format (what we're seeing)
+            # Check for 0x81 receive frame
             if self.buffer[0] == 0x81:
                 print(f"[RADIO] Found 0x81 frame!")
                 if len(self.buffer) < 3:
                     print(f"[RADIO] Need more data for length")
                     break
                 
-                # Frame format: [0x81][Len][0x00][Payload][4-byte trailer]
-                # Total frame size = 3 + Len + 4 = 7 + Len
-                payload_len = self.buffer[1]  # Single byte length
+                # Frame structure:
+                # [0x81][Len][0x00][RSSI][MAC:3][Channel:2][Protocol][Data...][Checksum]
+                # If protocol & 0x80: append [SensorMAC:3][SensorRSSI]
+                payload_len = self.buffer[1]
                 header_len = 3  # 0x81 + Len + 0x00
-                trailer_len = 4  # 4 bytes at end (checksum/RSSI/etc)
-                total_len = header_len + payload_len + trailer_len
+                min_frame_len = header_len + payload_len
                 
-                print(f"[RADIO] Payload length: {payload_len}, total frame: {total_len}, buffer has: {len(self.buffer)}")
+                print(f"[RADIO] Payload length: {payload_len}, min frame: {min_frame_len}, buffer has: {len(self.buffer)}")
                 
-                if len(self.buffer) < total_len:
-                    print(f"[RADIO] Need more data (have {len(self.buffer)}, need {total_len})")
+                if len(self.buffer) < min_frame_len:
+                    print(f"[RADIO] Need more data (have {len(self.buffer)}, need {min_frame_len})")
                     break
                 
-                # Extract Gen2 packet (skip 3-byte header, exclude 4-byte trailer)
-                gen2_packet = bytearray(self.buffer[header_len:header_len + payload_len])
-                print(f"[RADIO] Extracted Gen2 packet ({len(gen2_packet)} bytes): {bytes(gen2_packet[:20]).hex()}")
+                # Extract the full payload (RSSI + MAC + Channel + Protocol + Data + Checksum)
+                payload = bytearray(self.buffer[header_len:header_len + payload_len])
+                print(f"[RADIO] Extracted payload ({len(payload)} bytes): {bytes(payload[:24]).hex()}")
+                
+                # Parse the payload structure
+                if len(payload) < 7:  # Need at least RSSI(1) + MAC(3) + Channel(2) + Protocol(1)
+                    print(f"[RADIO] Payload too short")
+                    self.buffer.pop(0)
+                    continue
+                
+                # Extract components
+                rssi_byte = payload[0]
+                repeater_mac = bytes(payload[1:4])
+                channel = (payload[4] << 8) | payload[5]
+                protocol_byte = payload[6]
+                
+                # Check if this is a repeated packet (bit 7 set)
+                is_repeated = (protocol_byte & 0x80) == 0x80
+                protocol = protocol_byte & 0x7F  # Clear repeater bit
+                
+                print(f"[RADIO] RSSI={rssi_byte:02x}, RepeaterMAC={repeater_mac.hex()}, Channel={channel}, Protocol={protocol}, Repeated={is_repeated}")
+                
+                # Calculate expected frame size
+                total_frame_len = min_frame_len
+                if is_repeated:
+                    total_frame_len += 4  # Add sensor MAC (3) + sensor RSSI (1)
+                
+                if len(self.buffer) < total_frame_len:
+                    print(f"[RADIO] Need more data for repeated packet (have {len(self.buffer)}, need {total_frame_len})")
+                    break
+                
+                # Extract the Protocol 1/2/7 data (starts at offset 7 in payload)
+                protocol_data_start = 7
+                if is_repeated:
+                    # Protocol data ends 4 bytes before the end (before sensor MAC + RSSI)
+                    protocol_data = payload[protocol_data_start:-4]
+                else:
+                    # Protocol data goes to end of payload
+                    protocol_data = payload[protocol_data_start:]
+                
+                # Prepend channel as 2-byte address for Protocol parsing
+                gen2_packet = bytearray()
+                gen2_packet.append((channel >> 8) & 0xFF)  # Channel high byte
+                gen2_packet.append(channel & 0xFF)         # Channel low byte
+                gen2_packet.append(protocol)               # Protocol number
+                gen2_packet.extend(protocol_data)          # Rest of data
+                
+                print(f"[RADIO] Reconstructed Gen2 packet ({len(gen2_packet)} bytes): {bytes(gen2_packet[:20]).hex()}")
+                
+                # Convert RSSI to percentage (from LairdRadio.c)
+                if rssi_byte >= 128:
+                    rssi_dbm = (rssi_byte - 256) // 2 - 82
+                else:
+                    rssi_dbm = rssi_byte // 2 - 82
+                
+                if rssi_dbm > -58:
+                    rssi_pct = 95
+                elif rssi_dbm < -94:
+                    rssi_pct = 5
+                else:
+                    rssi_pct = int(2.5 * rssi_dbm + 240)
+                
+                print(f"[RADIO] RSSI: {rssi_byte:02x} → {rssi_dbm} dBm → {rssi_pct}%")
                 
                 # Parse Gen2 packet
-                self._parse_gen2_packet(gen2_packet, rssi=None, src_mac=None)
+                self._parse_gen2_packet(gen2_packet, rssi=rssi_pct, src_mac=repeater_mac)
                 
-                # Remove processed frame (including trailer)
-                self.buffer = self.buffer[total_len:]
-                print(f"[RADIO] Removed {total_len}-byte frame, buffer now: {len(self.buffer)} bytes")
+                # Remove processed frame
+                self.buffer = self.buffer[total_frame_len:]
+                print(f"[RADIO] Removed {total_frame_len}-byte frame, buffer now: {len(self.buffer)} bytes")
                 continue
             
-            # Check for 0xCC format (original RM024 API)
+            # Check for 0x82 format (TX response)
+            elif self.buffer[0] == 0x82:
+                print(f"[RADIO] Found 0x82 TX response frame")
+                if len(self.buffer) >= 4:
+                    self.buffer = self.buffer[4:]  # Discard TX response
+                else:
+                    break
+            
+            # Check for 0xCC format (command response)
             elif self.buffer[0] == 0xCC:
-                print(f"[RADIO] Found 0xCC frame - not fully implemented yet")
-                # For now, just discard it
+                print(f"[RADIO] Found 0xCC command response - discarding")
                 self.buffer.pop(0)
             
             else:

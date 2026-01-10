@@ -8,7 +8,7 @@
   "modbus": {
     "enabled": false,
     "port": "COM10",
-    "baud": 9600,
+    "baud": 19200,
     "slave_id": 32
   },
   "mqtt": {
