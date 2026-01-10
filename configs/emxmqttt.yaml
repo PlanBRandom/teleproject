@@ -1,0 +1,10 @@
+MQTT Connection Information
+Address:
+m3c10116.ala.us-east-1.emqxsl.com
+MQTT over TLS/SSL Port:
+8883
+WebSocket over TLS/SSL Port:
+8084
+CA Certificate:
+CA Certificate Expiration: 2031.11.09
+API Endpoint: API Key:https://m3c10116.ala.us-east-1.emqxsl.com:8443/api/v5

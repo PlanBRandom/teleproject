@@ -4,6 +4,7 @@ Publishes modbus register data to MQTT topics with automatic sensor discovery.
 """
 import json
 import logging
+import ssl
 import time
 from typing import Optional, Dict, Any, List
 from dataclasses import dataclass, asdict
@@ -28,6 +29,9 @@ class MQTTConfig:
     password: Optional[str] = None
     client_id: str = "oi7530_modbus_bridge"
     keepalive: int = 60
+    
+    # TLS/SSL configuration
+    use_tls: bool = False
     
     # Topic configuration
     base_topic: str = "homeassistant"
@@ -61,6 +65,10 @@ class MQTTPublisher:
         # Authentication
         if config.username:
             self.client.username_pw_set(config.username, config.password)
+        
+        # Enable TLS/SSL if configured or if using secure port (8883)
+        if config.use_tls or config.port == 8883:
+            self.client.tls_set(cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2)
         
         self.connected = False
         self.published_discoveries = set()

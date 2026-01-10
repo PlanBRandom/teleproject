@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Channel Management - OI Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .badge-active {
+            background: #10b981;
+            color: white;
+        }
+        
+        .badge-inactive {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .badge-unused {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .channel-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .channel-item {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .channel-info {
+            flex: 1;
+        }
+        
+        .channel-number {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 16px;
+        }
+        
+        .channel-details {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .status-message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .status-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+        
+        .loader {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .scan-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .scan-controls input {
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            width: 100px;
+        }
+        
+        .rogue-item {
+            padding: 12px;
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Channel Management</h1>
+            <p class="subtitle">Manage channels, disable inactive sensors, and scan for rogue radios</p>
+        </div>
+        
+        <div class="grid">
+            <!-- Active Channels -->
+            <div class="card">
+                <h2>
+                    ✓ Active Channels
+                    <span class="badge badge-active" id="active-count">0</span>
+                </h2>
+                <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                    Received messages in last 10 minutes
+                </p>
+                <div class="channel-list" id="active-channels">
+                    <div class="loader"></div>
+                </div>
+            </div>
+            
+            <!-- Inactive Channels -->
+            <div class="card">
+                <h2>
+                    ⚠ Inactive Channels
+                    <span class="badge badge-inactive" id="inactive-count">0</span>
+                </h2>
+                <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                    No messages in last 10 minutes
+                </p>
+                <div class="channel-list" id="inactive-channels">
+                    <div class="loader"></div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-danger" onclick="disableInactiveChannels()">
+                        Disable All Inactive
+                    </button>
+                </div>
+                <div class="status-message" id="disable-status"></div>
+            </div>
+            
+            <!-- Unused Channels -->
+            <div class="card">
+                <h2>
+                    ○ Unused Channels
+                    <span class="badge badge-unused" id="unused-count">0</span>
+                </h2>
+                <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                    No radio address assigned
+                </p>
+                <div class="channel-list" id="unused-channels">
+                    <div class="loader"></div>
+                </div>
+            </div>
+            
+            <!-- Rogue Radio Scanner -->
+            <div class="card">
+                <h2>🔍 Rogue Radio Scanner</h2>
+                <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                    Scan for unauthorized radio transmissions
+                </p>
+                
+                <div class="scan-controls">
+                    <label>Scan Channel:</label>
+                    <input type="number" id="scan-channel" min="1" max="32" value="17">
+                    <label>Duration (s):</label>
+                    <input type="number" id="scan-duration" min="10" max="300" value="30">
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="setupScanChannel()">
+                        Setup Scan Channel
+                    </button>
+                    <button class="btn-success" onclick="startRogueScan()">
+                        Start Scanning
+                    </button>
+                </div>
+                
+                <div class="status-message" id="scan-status"></div>
+                
+                <div id="rogue-results" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn-secondary" onclick="refreshChannels()">
+                🔄 Refresh Channels
+            </button>
+            <button class="btn-secondary" onclick="window.location.href='/'">
+                ← Back to Dashboard
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        let channelData = { active: [], inactive: [], unused: [] };
+        
+        // Load channels on page load
+        window.onload = function() {
+            refreshChannels();
+        };
+        
+        function refreshChannels() {
+            fetch('/api/channels/scan')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        channelData = data;
+                        displayChannels();
+                    } else {
+                        showError('Failed to scan channels: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    showError('Error scanning channels: ' + error);
+                });
+        }
+        
+        function displayChannels() {
+            // Active channels
+            const activeDiv = document.getElementById('active-channels');
+            document.getElementById('active-count').textContent = channelData.active.length;
+            activeDiv.innerHTML = '';
+            channelData.active.forEach(ch => {
+                activeDiv.innerHTML += `
+                    <div class="channel-item">
+                        <div class="channel-info">
+                            <div class="channel-number">Channel ${ch.channel}</div>
+                            <div class="channel-details">
+                                Address: ${ch.radio_addr} | ${ch.time_since}s ago | Battery: ${ch.battery}V
+                            </div>
+                        </div>
+                        <span class="badge badge-active">✓</span>
+                    </div>
+                `;
+            });
+            
+            // Inactive channels
+            const inactiveDiv = document.getElementById('inactive-channels');
+            document.getElementById('inactive-count').textContent = channelData.inactive.length;
+            inactiveDiv.innerHTML = '';
+            channelData.inactive.forEach(ch => {
+                inactiveDiv.innerHTML += `
+                    <div class="channel-item">
+                        <div class="channel-info">
+                            <div class="channel-number">Channel ${ch.channel}</div>
+                            <div class="channel-details">
+                                Address: ${ch.radio_addr} | ${ch.time_since}s ago
+                            </div>
+                        </div>
+                        <span class="badge badge-inactive">⚠</span>
+                    </div>
+                `;
+            });
+            
+            // Unused channels
+            const unusedDiv = document.getElementById('unused-channels');
+            document.getElementById('unused-count').textContent = channelData.unused.length;
+            unusedDiv.innerHTML = '';
+            channelData.unused.forEach(ch => {
+                unusedDiv.innerHTML += `
+                    <div class="channel-item">
+                        <div class="channel-info">
+                            <div class="channel-number">Channel ${ch}</div>
+                            <div class="channel-details">No address assigned</div>
+                        </div>
+                        <span class="badge badge-unused">○</span>
+                    </div>
+                `;
+            });
+            
+            // Update scan channel suggestion
+            if (channelData.unused.length > 0) {
+                document.getElementById('scan-channel').value = channelData.unused[0];
+            }
+        }
+        
+        function disableInactiveChannels() {
+            if (!confirm(`Disable ${channelData.inactive.length} inactive channels?`)) {
+                return;
+            }
+            
+            const channels = channelData.inactive.map(ch => ch.channel);
+            const statusDiv = document.getElementById('disable-status');
+            statusDiv.textContent = 'Disabling channels...';
+            statusDiv.className = 'status-message status-info';
+            statusDiv.style.display = 'block';
+            
+            fetch('/api/channels/disable', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ channels: channels })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const successful = data.results.filter(r => r.success).length;
+                    statusDiv.textContent = `✓ Disabled ${successful} of ${channels.length} channels`;
+                    statusDiv.className = 'status-message status-success';
+                    setTimeout(refreshChannels, 1000);
+                } else {
+                    statusDiv.textContent = '✗ Error: ' + data.error;
+                    statusDiv.className = 'status-message status-error';
+                }
+            })
+            .catch(error => {
+                statusDiv.textContent = '✗ Error: ' + error;
+                statusDiv.className = 'status-message status-error';
+            });
+        }
+        
+        function setupScanChannel() {
+            const channel = parseInt(document.getElementById('scan-channel').value);
+            const statusDiv = document.getElementById('scan-status');
+            
+            statusDiv.textContent = `Setting up channel ${channel} for scanning...`;
+            statusDiv.className = 'status-message status-info';
+            statusDiv.style.display = 'block';
+            
+            fetch('/api/channels/setup_scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ channel: channel, scan_addr: 255 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusDiv.textContent = `✓ ${data.message}`;
+                    statusDiv.className = 'status-message status-success';
+                } else {
+                    statusDiv.textContent = '✗ Error: ' + data.error;
+                    statusDiv.className = 'status-message status-error';
+                }
+            })
+            .catch(error => {
+                statusDiv.textContent = '✗ Error: ' + error;
+                statusDiv.className = 'status-message status-error';
+            });
+        }
+        
+        function startRogueScan() {
+            const channel = parseInt(document.getElementById('scan-channel').value);
+            const duration = parseInt(document.getElementById('scan-duration').value);
+            const statusDiv = document.getElementById('scan-status');
+            const resultsDiv = document.getElementById('rogue-results');
+            
+            statusDiv.textContent = `Scanning for ${duration} seconds... Please wait.`;
+            statusDiv.className = 'status-message status-info';
+            statusDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<div class="loader"></div>';
+            
+            fetch('/api/channels/monitor_rogues', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ channel: channel, duration: duration })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.count > 0) {
+                        statusDiv.textContent = `✓ Found ${data.count} rogue radio(s)!`;
+                        statusDiv.className = 'status-message status-success';
+                        displayRogues(data.detected);
+                    } else {
+                        statusDiv.textContent = '○ No rogue radios detected';
+                        statusDiv.className = 'status-message status-info';
+                        resultsDiv.innerHTML = '';
+                    }
+                } else {
+                    statusDiv.textContent = '✗ Error: ' + data.error;
+                    statusDiv.className = 'status-message status-error';
+                    resultsDiv.innerHTML = '';
+                }
+            })
+            .catch(error => {
+                statusDiv.textContent = '✗ Error: ' + error;
+                statusDiv.className = 'status-message status-error';
+                resultsDiv.innerHTML = '';
+            });
+        }
+        
+        function displayRogues(rogues) {
+            const resultsDiv = document.getElementById('rogue-results');
+            resultsDiv.innerHTML = '<h3 style="margin-bottom: 10px;">Detected Rogue Radios:</h3>';
+            
+            rogues.forEach(addr => {
+                const availableChannel = channelData.unused.find(ch => ch !== parseInt(document.getElementById('scan-channel').value));
+                resultsDiv.innerHTML += `
+                    <div class="rogue-item">
+                        <div>
+                            <strong>Radio Address: ${addr}</strong>
+                            <div style="font-size: 12px; color: #666;">Unauthorized transmission detected</div>
+                        </div>
+                        ${availableChannel ? 
+                            `<button class="btn-success" onclick="assignRogue(${addr}, ${availableChannel})">
+                                Assign to Ch ${availableChannel}
+                            </button>` :
+                            '<span style="color: #666;">No channels available</span>'
+                        }
+                    </div>
+                `;
+            });
+        }
+        
+        function assignRogue(rogueAddr, channel) {
+            if (!confirm(`Assign rogue radio ${rogueAddr} to channel ${channel}?`)) {
+                return;
+            }
+            
+            fetch('/api/channels/auto_assign', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rogue_addr: rogueAddr, unused_channel: channel })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`✓ ${data.message}`);
+                    refreshChannels();
+                } else {
+                    alert('✗ Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('✗ Error: ' + error);
+            });
+        }
+        
+        function showError(message) {
+            alert('Error: ' + message);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+{
+  "start_time": "2026-01-07T17:52:34.484875",
+  "last_update": "2026-01-08T05:51:37.372997",
+  "elapsed_seconds": 43142.888159,
+  "radios": {
+    "Network_15": {
+      "total_bytes": 102557,
+      "total_packets": 0,
+      "channels": {},
+      "gas_types": {}
+    },
+    "Network_20": {
+      "total_bytes": 533,
+      "total_packets": 0,
+      "channels": {},
+      "gas_types": {}
+    },
+    "Network_25": {
+      "total_bytes": 2185,
+      "total_packets": 90,
+      "channels": {
+        "1": 5,
+        "9": 6,
+        "10": 5,
+        "6": 5,
+        "7": 6,
+        "5": 6,
+        "17": 6,
+        "15": 6,
+        "16": 5,
+        "4": 5,
+        "11": 5,
+        "13": 5,
+        "22": 5,
+        "23": 5,
+        "20": 5,
+        "14": 5,
+        "12": 5
+      },
+      "gas_types": {
+        "H2S": 49,
+        "CH2O": 10,
+        "FEET": 26,
+        "R1234YF": 5
+      }
+    }
+  },
+  "modbus": {
+    "total_bytes": 0,
+    "slave_10": {
+      "requests": 0,
+      "responses": 0
+    },
+    "slave_30": {
+      "requests": 0,
+      "responses": 0
+    },
+    "slave_3": {
+      "requests": 0,
+      "responses": 0
+    }
+  }
+}

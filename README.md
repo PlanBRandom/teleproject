@@ -1,707 +1,379 @@
-# OI-7530/7010/7032 Modbus to MQTT Bridge
+# OI-7500 Pipeline Control Center
 
-Complete Modbus-to-MQTT bridge for OI Analytical gas monitors with wireless sensor support via Laird radio modules.
+Complete monitoring and diagnostic system for Oldham OI-7500 gas detection with WireFree radios.
 
-## 🚀 Quick Install (Home Assistant Add-on)
+## 🚀 Quick Start
 
-**One-Click Installation:**
+### Launch the GUI Control Center
 
-[![Add Repository to Home Assistant][repository-badge]][repository-url]
-
-1. Click the button above to add the repository
-2. Install "OI Gas Monitor Bridge" from the add-on store
-3. Configure your settings (Modbus port, MQTT credentials)
-4. Start the add-on
-
-📖 **Detailed Instructions**: [ADDON_INSTALL.md](ADDON_INSTALL.md)
-
-## Features
-
-✨ **Multi-Platform Support**
-- **Direct USB/RS485**: Run on any computer with RS485-to-USB converter
-- **ESP32 + ESPHome**: Wireless monitoring via WiFi using ESP32-WROOM + MAX485
-- **Arduino**: Portable monitoring with Arduino boards
-- **Laird Radio**: Direct wireless sensor monitoring via Laird WireFree modules
-
-🔄 **Robust Communication**
-- Modbus RTU (serial) and TCP support
-- Automatic retry and reconnection handling
-- Configurable polling intervals
-- Error tracking and recovery
-
-🏠 **Home Assistant Integration**
-- Automatic MQTT discovery
-- Pre-built Lovelace dashboards
-- Gas sensor monitoring with device classes
-- Real-time telemetry data
-
-📊 **Sensor Support**
-- Up to 32 wireless gas sensor channels
-- Wired sensor inputs
-- Diagnostic registers (alarms, faults, status)
-- Configuration registers (radio addresses)
-- Real-time WireFree Gen II packet decoding
-- Battery level monitoring and alerts
-
-🧠 **Machine Learning & Radio Intelligence**
-- Real-time anomaly detection on radio sensor data
-- Sensor health tracking (battery, signal, faults)
-- Predictive maintenance scheduling
-- Automatic fault alerting
-- Historical data collection for ML training
-
-## Hardware Requirements
-
-### Option 1: Direct USB Connection
-- OI-7530 or OI-7010 gas monitor
-- RS485-to-USB converter
-- Computer running Python 3.8+
-
-### Option 2: ESP32 WiFi Bridge
-- ESP32-WROOM development board
-- MAX485 TTL-to-RS485 converter module
-- 5V power supply
-- Jumper wires
-
-**Wiring (ESP32 + MAX485):**
-```
-ESP32          MAX485
-GPIO17    ->   DI (Transmit)
-GPIO16    ->   RO (Receive)
-GPIO4     ->   DE and RE (Direction control)
-5V        ->   VCC
-GND       ->   GND
-
-MAX485         OI-7530
-A         ->   A/+ (Modbus)
-B         ->   B/- (Modbus)
+```bash
+python launcher.py
 ```
 
-### Option 3: Arduino
-- Arduino board with RS485 shield or MAX485 module
-- Similar wiring to ESP32 (adjust pins)
+This opens the main control center with tabs for:
+- **📡 Monitoring**: Start/stop monitoring, view live data
+- **🔧 Diagnostics**: Radio config checks, packet analysis, F8/F14 troubleshooting  
+- **💾 Database**: View packet history, export data, statistics
+- **⚙️ System**: Quick actions, logs, system info
 
-## Quick Start
+![Control Center](docs/screenshots/control-center.png)
 
-### 1. Installation
+### Prerequisites
 
-```powershell
-# Clone or navigate to project
-cd d:\oi-7500-pipeline
-
-# Install Python dependencies
+```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Verify radios are SECONDARY (receive-only) - CRITICAL!
+python diagnostics/verify_radio_config.py
 ```
 
-### 2. Configuration
-
-Edit `config.yaml` to match your setup:
-
-```yaml
-modbus:
-  type: rtu  # or 'tcp' for ESP32
-  port: COM3  # Your RS485 port (Windows: COMx, Linux: /dev/ttyUSB0)
-  baudrate: 9600
-  slave_id: 1
-
-mqtt:
-  broker: localhost  # Your Home Assistant IP
-  device_name: OI-7530 Gas Monitor
-  device_id: oi7530_01
-```
-
-### 3. Run the Bridge
-
-```powershell
-# Direct execution
-python -m pipeline.main
-
-# With custom config
-python -m pipeline.main -c config.yaml
-
-# Verbose mode for debugging
-python -m pipeline.main -v
-```
-
-### 4. Generate Home Assistant Dashboards
-
-```powershell
-python generate_channels.py
-```
-
-Import generated dashboards in Home Assistant:
-- `configs/lovelace/dashboard.yaml` - Main overview
-- `configs/lovelace/channels.yaml` - Detailed channel view
-
-## ESP32 + ESPHome Deployment
-
-### 1. Install ESPHome
-
-```powershell
-pip install esphome
-```
-
-### 2. Edit Configuration
-
-1. Copy `config.esphome.yaml` to your ESPHome folder
-2. Edit `secrets.yaml` with your WiFi credentials
-3. Adjust GPIO pins if needed
-
-### 3. Flash ESP32
-
-```powershell
-# First time (USB connected)
-esphome run config.esphome.yaml
-
-# Over-the-air updates (after first flash)
-esphome run config.esphome.yaml --upload-port oi7530-bridge.local
-```
-
-### 4. Add to Home Assistant
-
-The ESP32 will appear automatically in Home Assistant:
-- Settings → Devices & Services → ESPHome
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 oi-7500-pipeline/
-├── pipeline/
-│   ├── main.py              # Main application
-│   ├── register.py          # Register map parser
-│   ├── modbus_client.py     # Modbus RTU/TCP client
-│   ├── mqtt.py              # MQTT publisher with HA discovery
-│   └── ml_analytics.py      # ML analytics and predictions
-├── register_maps/
-│   ├── 7500-RegMap.csv      # OI-7530 register definitions
-│   └── 7500for python.csv   # Simplified register map
-├── configs/
-│   └── lovelace/            # Generated dashboards
-├── ml_data/                 # ML training data storage
-├── ml_reports/              # ML analysis reports
-├── test/                    # Unit tests
-├── test_data/               # Sample radio packets and test data
-├── config.yaml              # Main configuration
-├── config.esphome.yaml      # ESP32 configuration
-├── secrets.yaml             # Credentials (don't commit!)
-├── generate_channels.py     # Dashboard generator
-├── train_ml_models.py       # ML training script
-├── ml_live_monitor.py       # Real-time ML monitoring
-├── decode_radio_packets.py  # Laird radio packet decoder
-└── requirements.txt         # Python dependencies
+├── launcher.py                   # 🎯 MAIN GUI LAUNCHER (START HERE)
+├── config.json                   # Central configuration
+│
+├── monitoring/                   # Monitoring scripts
+│   ├── monitor_multi_network.py  # Main 3-network monitor
+│   ├── mqtt_monitor.py           # Simple MQTT subscriber
+│   └── start_with_modbus.py      # Modbus integration
+│
+├── diagnostics/                  # Diagnostic tools
+│   ├── packet_diagnostics.py     # Database query tool
+│   ├── verify_radio_config.py    # Check radio mode
+│   └── fix_radio_secondary.py    # Fix radio to secondary
+│
+├── database/                     # Database layer
+│   └── packet_database.py        # SQLite packet storage
+│
+├── pipeline/                     # Core modules
+│   ├── fault_tracking.py
+│   ├── mqtt.py
+│   ├── register.py
+│   └── stat.py
+│
+├── gui/                          # GUI applications
+│   └── web_gui/                  # Web-based GUI (Flask)
+│
+├── utils/                        # Utility scripts
+│   └── generate_channels.py      # Channel YAML generator
+│
+├── protocol_logs/                # Logs & database
+│   └── packets.db                # SQLite packet database
+│
+└── test/                         # Unit tests
 ```
 
-## Configuration Options
+## 🔧 Features
 
-### Modbus Settings
+### Monitoring
+✅ 3-network simultaneous monitoring (COM7, COM11, COM12)  
+✅ Complete WireFree Protocol 1 decoding (8 fields)  
+✅ MQTT publishing with TLS  
+✅ Real-time console display  
+✅ Automatic packet database logging  
 
-```yaml
-modbus:
-  type: rtu              # Connection type: 'rtu' or 'tcp'
-  port: COM3             # Serial port (RTU only)
-  baudrate: 9600         # Serial baudrate
-  parity: N              # Parity: N, E, O
-  host: 192.168.1.100    # IP address (TCP only)
-  tcp_port: 502          # TCP port
-  slave_id: 1            # Modbus device address
-  timeout: 3             # Timeout in seconds
-  retries: 3             # Retry attempts
+### Diagnostics
+✅ Radio configuration verification (SECONDARY mode check)  
+✅ F8 duplicate address detection  
+✅ F14 primary timeout tracking  
+✅ Channel packet history  
+✅ Network health metrics  
+✅ Raw packet hex viewing  
+✅ CSV export for analysis  
+
+### Database
+✅ SQLite storage for all packets  
+✅ Automatic fault event tracking  
+✅ Network statistics  
+✅ RSSI tracking  
+✅ Query by channel, network, time range  
+
+## ⚙️ Hardware Configuration
+
+**3-Network Repeater Topology:**
+```
+Network_15:  COM7  @ 115200 baud → OI-7530 (Modbus slave 30)
+Network_20:  COM12 @ 115200 baud → OI-7010 (Modbus slave 10)
+Network_25:  COM11 @ 115200 baud → OI-7032 (Modbus slave 32)
 ```
 
-### MQTT Settings
+All radios are **Laird RM024** modules in **SECONDARY** (receive-only) mode.
 
-```yaml
-mqtt:
-  broker: localhost              # MQTT broker address
-  port: 1883                     # MQTT port
-  username: null                 # Optional authentication
-  password: null
-  device_name: OI-7530 Gas Monitor
-  device_id: oi7530_01          # Unique device identifier
-  discovery_enabled: true        # Enable HA autodiscovery
+## 📊 Protocol Details
+
+**WireFree Protocol 1 (0x81 packets):**
+| Field | Bytes | Description |
+|-------|-------|-------------|
+| Channel | 8 | Channel number (1-255) |
+| Reading | 10-13 | IEEE 754 float sensor value |
+| Gas Type | 16 (bits 0-6) | O2, LEL, H2S, CO, SO2, etc. |
+| Sensor Mode | 14 (bits 0-2) | Normal/Null/Calibration |
+| Sensor Type | 14 (bits 3-7) | EC/IR/CB/MOS/PID |
+| Battery | 15 + scale | 3.5V-23V range |
+| Fault Code | 17 (bits 0-3) | F0-F15 |
+| Precision | 17 (bits 4-6) | 0-7 decimal places |
+
+## 🚨 Fault Codes (Official Oldham)
+
+```
+F0:  None
+F1:  Top card lost comm with digital sensor board
+F2:  No longer assigned (update firmware)
+F3:  Low Power IR sensor beyond repair (must replace)
+F4:  ADC/analog sensor board comm issue
+F5:  Unit did not Null correctly
+F6:  Unit did not Cal correctly (Autocal)
+F7:  Internal fault (update firmware)
+F8:  Two sensors with same address ⚠️ [DIAGNOSTIC TOOL AVAILABLE]
+F9:  Radio timeout (no comm from sensor)
+F10: Wired sensor not communicating
+F11: Low Power IR temp changing too quickly (auto-clears)
+F12: Low Power IR element restarting (auto-clears)
+F13: 4-20mA fault condition (check sensor)
+F14: Cannot see Primary Monitor (radio) ⚠️ [DIAGNOSTIC TOOL AVAILABLE]
+F15: No longer assigned (update firmware)
 ```
 
-### Polling Settings
+## 🎯 Usage Examples
 
-```yaml
-poll_interval: 5.0              # Seconds between polls
-poll_sensor_readings: true      # Poll gas sensor data
-poll_configuration: false       # Poll config registers
-poll_diagnostics: true          # Poll status/alarms
+### Basic Monitoring
+
+**Via GUI:**
+```bash
+python launcher.py
+# → Monitoring tab → Set duration → Start Monitoring
 ```
 
-## Register Map
+**Via Command Line:**
+```bash
+# Monitor for 1 hour with MQTT
+python monitoring/monitor_multi_network.py 1 \
+  --mqtt-broker a1bcc059f5f74a6d8271e8b567fecc6d.s1.eu.hivemq.cloud \
+  --mqtt-port 8883 \
+  --mqtt-username laird \
+  --mqtt-password LairdRM024 \
+  --mqtt-use-tls
+```
 
-The CSV register map defines all available modbus registers:
+### Troubleshooting F8 Faults
 
-| Address | Description           | Type    | Units | Access |
-|---------|-----------------------|---------|-------|--------|
-| 0x01    | Channel 1 Radio Addr  | uint16  | -     | R/W    |
-| 0x21    | Channel 1 Reading     | float32 | PPM   | R      |
-| 0x23    | Channel 2 Reading     | float32 | PPM   | R      |
-| ...     | ...                   | ...     | ...   | ...    |
+F8 = Two sensors with same address (common in repeater networks)
 
-See `register_maps/7500-RegMap.csv` for complete list.
+```bash
+# Find duplicate addresses
+python diagnostics/packet_diagnostics.py --f8
 
-## Development
+# Example output:
+# Transmitter Address 42 used by channels: 5, 12
+# Fix: Change one sensor's address using OI-7010 diagnostic commands
+```
 
-### Testing
+### Troubleshooting F14 Faults
 
-```powershell
+F14 = Sensor cannot see Primary Monitor (timeout issues)
+
+```bash
+# Track F14 occurrences
+python diagnostics/packet_diagnostics.py --f14 --hours 24
+
+# Check specific network health
+python diagnostics/packet_diagnostics.py --network Network_25 --hours 1
+```
+
+### Channel History Analysis
+
+```bash
+# View last 100 packets for Channel 16
+python diagnostics/packet_diagnostics.py --channel 16 --limit 100
+```
+
+### Export Data for Analysis
+
+```bash
+# Export last 24 hours to CSV
+python diagnostics/packet_diagnostics.py --export packets.csv --hours 24
+# Open in Excel/Python for detailed analysis
+```
+
+## 🔐 Safety - Radio Configuration
+
+### CRITICAL: Verify Radios Are SECONDARY
+
+Your monitoring radios **MUST** be in SECONDARY (receive-only) mode:
+- ✅ **ATSP=00** (SECONDARY) - Safe, receive-only, 115200 baud
+- ❌ **ATSP=01** (PRIMARY) - UNSAFE, will transmit and interfere!
+
+**Check radios before monitoring:**
+```bash
+python diagnostics/verify_radio_config.py
+```
+
+**If any radios are PRIMARY, fix immediately:**
+```bash
+python diagnostics/fix_radio_secondary.py COM7
+```
+
+### Why This Matters
+
+Your radios at **115200 baud** are configured for high-speed monitoring. If accidentally set to PRIMARY mode, they will transmit and:
+- Cause F8 faults (duplicate address conflicts)
+- Interfere with sensor-to-monitor communication
+- Disrupt the entire sensor network
+
+The 115200 baud configuration itself is strong evidence they're SECONDARY (primaries use 9600 baud to match sensor transmit rate).
+
+## 📖 MQTT Data Format
+
+Published to: `oi7500/<network>/<channel>`
+
+```json
+{
+  "channel": 16,
+  "reading": 21.9,
+  "gas_type": "O2",
+  "gas_type_code": 2,
+  "battery_voltage": 3.6,
+  "fault_code": 0,
+  "fault": "None",
+  "precision": 2,
+  "sensor_mode": 0,
+  "sensor_type": 0,
+  "network": "Network_25",
+  "timestamp": "2026-01-08T13:18:15.212861"
+}
+```
+
+## 🛠️ Configuration
+
+Edit [config.json](config.json) for your setup:
+
+```json
+{
+  "mqtt": {
+    "broker": "your-broker.hivemq.cloud",
+    "port": 8883,
+    "username": "your-username",
+    "password": "your-password",
+    "use_tls": true
+  },
+  "monitoring": {
+    "duration_hours": 1.0,
+    "networks": ["Network_15", "Network_20", "Network_25"]
+  }
+}
+```
+
+## 🔄 Typical Workflow
+
+### Daily Operations
+1. **Launch Control Center:**  
+   ```bash
+   python launcher.py
+   ```
+
+2. **Verify Radios** (first time or after changes):  
+   Diagnostics tab → "✓ Verify Radio Config"
+
+3. **Start Monitoring:**  
+   Monitoring tab → Set duration → "▶ Start Monitoring"
+
+4. **View Data:**  
+   - MQTT Stream: Click "📊 View MQTT Stream"  
+   - Database: Database tab → "🔄 Refresh"  
+   - Web GUI: System tab → "🌐 Open Web GUI"
+
+### When Faults Occur
+
+1. **Run Diagnostics:**  
+   Diagnostics tab → Select appropriate query:
+   - F8: "🔍 Find F8 Duplicates"
+   - F14: "🔍 Track F14 Timeouts"
+   - Channel-specific: Enter channel → "View Channel History"
+
+2. **Export for Analysis:**  
+   Database tab → Set hours → "📤 Export to CSV"
+
+3. **View Raw Packets** (if needed):  
+   ```bash
+   python diagnostics/packet_diagnostics.py --raw --network Network_25 --limit 10
+   ```
+
+## 🐛 Troubleshooting
+
+### No Data from Radios
+- Check COM ports available (close other programs)
+- Verify baud rate (115200)
+- Ensure RTS/CTS flow control enabled
+- Radios powered on
+
+### MQTT Connection Issues
+- Check broker URL in config.json
+- Verify port 8883 (TLS) or 1883 (non-TLS)
+- Confirm username/password
+- Check firewall settings
+
+### F8 Faults (Duplicate Address)
+```bash
+python diagnostics/packet_diagnostics.py --f8
+# Shows which channels share the same address
+# Use OI-7010 diagnostic commands to change sensor addresses
+```
+
+### F14 Faults (Primary Timeout)
+```bash
+python diagnostics/packet_diagnostics.py --f14 --hours 24
+# Check: RSSI, repeater status, network ID matches
+```
+
+## 🧪 Testing
+
+```bash
 # Run all tests
 pytest
 
-# Run specific test file
-pytest test/test_modbus.py
+# Run specific test
+pytest test/test_fault_tracking.py
 
 # With coverage
 pytest --cov=pipeline
 ```
 
-### Testing Components Individually
+## 📚 Additional Documentation
 
-```powershell
-# Test register parser
-python -m pipeline.register
+- **Installation Guide**: [INSTALL.md](docs/INSTALL.md) _(if exists)_
+- **Protocol Documentation**: See WireFree Protocol Generation II documentation
+- **Fault Code Reference**: Official Oldham fault codes (F0-F15) with solutions
+- **Old README**: [README_OLD.md](README_OLD.md) - Original comprehensive documentation
 
-# Test modbus client (requires device)
-python -m pipeline.modbus_client
+## 🤝 Contributing
 
-# Test MQTT publisher (requires broker)
-python -m pipeline.mqtt
-
-# Test ML analytics
-python -m pipeline.ml_analytics
-```
-
-## 📡 Radio Monitoring with ML
-
-### Live Radio + ML Analytics
-
-Monitor wireless sensors with real-time ML analytics:
-
-```powershell
-# Start radio monitor with ML (recommended)
-D:/oi-7500-pipeline/.venv/Scripts/python.exe radio_ml_monitor.py --port COM7
-
-# Adjust anomaly sensitivity
-D:/oi-7500-pipeline/.venv/Scripts/python.exe radio_ml_monitor.py --port COM7 --anomaly-sensitivity 2.5
-
-# Custom low battery threshold
-D:/oi-7500-pipeline/.venv/Scripts/python.exe radio_ml_monitor.py --port COM7 --low-battery-threshold 3.5
-
-# Disable ML (raw monitoring only)
-D:/oi-7500-pipeline/.venv/Scripts/python.exe radio_ml_monitor.py --port COM7 --disable-ml
-```
-
-**Features:**
-- ✅ Decodes OI WireFree Gen II protocol packets
-- ✅ Real-time anomaly detection
-- ✅ Battery level monitoring
-- ✅ Fault detection and alerting
-- ✅ Automatic data collection for ML training
-- ✅ Sensor health tracking
-
-**Decoded Information:**
-- Transmitter address/channel number
-- Gas reading with units
-- Gas type (H2S, CO, O2, etc.)
-- Sensor type (EC, IR, PID, etc.)
-- Operating mode (Normal, Calibration, etc.)
-- Battery voltage
-- Fault codes
-
-### Packet Decoding (Advanced)
-
-Low-level packet analysis:
-
-```powershell
-# Decode from captured hex file
-D:/oi-7500-pipeline/.venv/Scripts/python.exe decode_radio_packets.py --file test_data/radio_packets_sample.txt
-
-# Live decode from serial port
-D:/oi-7500-pipeline/.venv/Scripts/python.exe decode_radio_packets.py --port COM7 --live
-
-# Verbose output showing all fields
-D:/oi-7500-pipeline/.venv/Scripts/python.exe decode_radio_packets.py --file test_data/radio_packets_sample.txt --verbose
-
-# Export decoded data to JSON
-D:/oi-7500-pipeline/.venv/Scripts/python.exe decode_radio_packets.py --file test_data/radio_packets_sample.txt --output decoded.json
-```
-
-**Protocol Details:**
-- **Protocol 0**: Monitor control packets
-- **Protocol 1**: Standard sensor data (most common)
-  - Bytes 0-1: Transmitter address (channel)
-  - Bytes 3-6: 32-bit float sensor reading
-  - Byte 7: Sensor type and mode
-  - Byte 8: Battery reading
-  - Byte 9: Gas type and battery scale
-  - Byte 10: Fault indicator
-  - Byte 11: Checksum
-
-## Troubleshooting
-
-### Cannot connect to COM port
-
-- Check port name: `mode` (Windows) or `ls /dev/tty*` (Linux)
-- Ensure no other application is using the port
-- Verify RS485 wiring (A to A, B to B)
-- Check modbus slave address in config
-
-### MQTT not connecting
-
-- Verify broker address and port
-- Check firewall settings
-- Test with `mosquitto_pub/sub` or MQTT Explorer
-- Confirm credentials if authentication is enabled
-
-### No data from sensors
-
-- Verify modbus connection (check logs for errors)
-- Confirm correct register addresses in CSV
-- Check sensor calibration on OI-7530 device
-- Verify wireless sensors are paired (for remote channels)
-
-### ESP32 not connecting to WiFi
-
-- Double-check WiFi credentials in `secrets.yaml`
-- Ensure 2.4GHz WiFi (ESP32 doesn't support 5GHz)
-- Check signal strength
-- Look at serial monitor during boot: `esphome logs config.esphome.yaml`
-
-## 🧠 Machine Learning & Predictive Analytics
-
-### Features
-
-**Sensor Degradation Prediction**
-- Automatic drift detection and tracking
-- Predictive maintenance scheduling
-- Calculates days until calibration needed
-- Confidence scoring for predictions
-
-**Real-Time Anomaly Detection**
-- Statistical anomaly detection (Z-score + IQR)
-- Configurable sensitivity thresholds
-- Automatic baseline learning
-- Anomaly scoring and classification
-
-**Response Time Analysis**
-- Sensor performance monitoring
-- Response time degradation detection
-- Event correlation analysis
-
-**Data Collection & Storage**
-- Automatic sensor data archiving
-- Efficient batch processing
-- Historical data management
-- JSON-based storage format
-
-### Quick Start - ML Analytics
-
-#### 1. Train Models on Historical Data
-
-```powershell
-# Run comprehensive analysis on 30 days of data
-python train_ml_models.py --days 30 --export-report
-
-# With custom sensitivity
-python train_ml_models.py --days 90 --anomaly-sensitivity 2.5 --export-report
-
-# Specify output location
-python train_ml_models.py --days 60 --output ml_reports/ --export-report
-```
-
-#### 2. Real-Time ML Monitoring
-
-```powershell
-# Start live monitoring with ML
-python ml_live_monitor.py --config config.yaml
-
-# With verbose output
-python ml_live_monitor.py --config config.yaml --verbose
-
-# Custom anomaly detection
-python ml_live_monitor.py --anomaly-sensitivity 2.0
-```
-
-#### 3. Analyze Specific Metrics
-
-```python
-from pipeline.ml_analytics import MLAnalyticsPipeline
-
-# Initialize pipeline
-pipeline = MLAnalyticsPipeline()
-
-# Run comprehensive analysis
-analysis = pipeline.run_analysis(days=30)
-
-# Check maintenance predictions
-for channel, prediction in analysis['maintenance_predictions'].items():
-    if prediction.get('urgency') == 'critical':
-        print(f"Channel {channel} needs immediate calibration!")
-        print(f"Days remaining: {prediction['days_to_calibration']:.1f}")
-```
-
-### ML Configuration
-
-Add to your `config.yaml`:
-
-```yaml
-ml:
-  enabled: true
-  storage_path: ml_data
-  anomaly_detection:
-    enabled: true
-    sensitivity: 3.0        # Standard deviations for anomaly threshold
-    window_size: 100        # Baseline calculation window
-  
-  maintenance_prediction:
-    enabled: true
-    drift_threshold: 0.1    # 10% drift triggers calibration alert
-    analysis_interval: 24   # Hours between analyses
-  
-  batch_save_interval: 100  # Save data every N readings
-```
-
-### ML Output Reports
-
-Training generates comprehensive reports:
-
-```
-ml_reports/
-├── ml_analysis_report_20251219_143022.json  # Detailed JSON report
-└── ml_summary_20251219_143022.txt           # Human-readable summary
-```
-
-**Report Contents:**
-- Sensor drift rates and trends
-- Days until calibration needed per channel
-- Maintenance urgency levels (critical/high/medium/low)
-- Response time analysis
-- Anomaly detection baselines
-- Statistical summaries
-
-### Example ML Output
-
-```
-🔴 Channel 12: CRITICAL  | Days to cal:    3.2 | Drift: +0.0234/day
-   → Immediate calibration required
-
-🟠 Channel  5: HIGH      | Days to cal:   18.5 | Drift: +0.0089/day
-   → Schedule calibration within 1 week
-
-🟡 Channel  8: MEDIUM    | Days to cal:   67.3 | Drift: +0.0021/day
-   → Plan calibration within 1 month
-
-🟢 Channel  1: LOW       | Days to cal:  342.1 | Drift: +0.0003/day
-   → Monitor - no immediate action needed
-```
-
-### Advanced ML Use Cases
-
-**1. Predictive Maintenance Dashboard**
-```python
-# Generate maintenance schedule
-analysis = pipeline.run_analysis(days=90)
-critical_channels = [
-    ch for ch, pred in analysis['maintenance_predictions'].items()
-    if pred.get('urgency') in ['critical', 'high']
-]
-print(f"Channels requiring immediate attention: {critical_channels}")
-```
-
-**2. Automated Alerting**
-```python
-# Real-time anomaly monitoring
-result = pipeline.process_reading(channel=5, value=12.3)
-if result['anomaly']['is_anomaly']:
-    send_alert(f"Anomaly on Channel 5: {result['anomaly']['reason']}")
-```
-
-**3. Trend Analysis**
-```python
-# Analyze drift patterns
-from pipeline.ml_analytics import SensorDegradationPredictor
-
-predictor = SensorDegradationPredictor()
-drift_info = predictor.calculate_drift(df, channel=3)
-print(f"Drift rate: {drift_info['drift_rate_per_day']:.4f} units/day")
-```
-
-### Data Storage Structure
-
-ML data is stored in JSON batches:
-
-```json
-{
-  "timestamp": "2025-12-19T14:30:22",
-  "channel": 5,
-  "value": 10.23,
-  "metadata": {
-    "temperature": 22.5,
-    "humidity": 45.2
-  }
-}
-```
-
-## Use Cases
-
-### Home Automation
-- Real-time gas leak detection alerts
-- Integration with ventilation systems
-- Historical data logging and analysis
-- Mobile notifications via Home Assistant
-- **ML-powered predictive maintenance**
-- **Anomaly detection for early leak warning**
-
-### Industrial Monitoring
-- Multi-zone gas concentration tracking
-- Compliance data collection
-- Remote monitoring of hazardous areas
-- Wireless sensor flexibility
-- **Predictive sensor calibration scheduling**
-- **Automated drift detection and correction**
-- **Performance trend analysis**
-
-### Laboratory
-- Fume hood monitoring
-- Chemical storage safety
-- Clean room air quality
-- Research data logging
-- **Sensor degradation tracking**
-- **Response time analysis for QA**
-
-## Contributing
-
-Contributions welcome! Please:
 1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Submit a pull request
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
-## License
+## 📄 License
 
-This project is provided as-is for educational and personal use.
+Internal tool for OI-7500 monitoring system.
 
-## Hardware References
+## 🎯 Quick Command Reference
 
-- **OI-7530**: 32-channel wireless gas monitor
-- **OI-7010**: 64-channel wired/wireless gas monitor
-- **MAX485**: RS485 transceiver module
-- **ESP32-WROOM**: WiFi/Bluetooth microcontroller
-- **Home Assistant**: Open-source home automation platform
-
-## Resources
-
-- [OI-7530 Documentation](https://www.otis-instruments.com/)
-- [Modbus Protocol](https://modbus.org/)
-- [ESPHome Documentation](https://esphome.io/)
-- [Home Assistant](https://www.home-assistant.io/)
-- [PyModbus](https://pymodbus.readthedocs.io/)
-- [Paho MQTT](https://www.eclipse.org/paho/clients/python/)
-
-## Docker Image Builds and CI/CD
-
-### Automated Builds
-
-This repository uses GitHub Actions to automatically build and publish Docker images for the Home Assistant add-on. Images are built for multiple architectures and published to the GitHub Container Registry (ghcr.io).
-
-**Supported Architectures:**
-- `armhf` - ARM 32-bit (Raspberry Pi Zero, Pi 1)
-- `armv7` - ARM 32-bit v7 (Raspberry Pi 2, Pi 3)
-- `aarch64` - ARM 64-bit (Raspberry Pi 3/4/5 with 64-bit OS)
-- `amd64` - x86 64-bit (Intel/AMD processors)
-- `i386` - x86 32-bit (older Intel/AMD processors)
-
-**Build Triggers:**
-- **Push to main branch**: Builds images tagged with the version from `config.yaml` and `latest`
-- **Version tags**: Pushing a tag like `v1.0.0` builds images with that specific version
-- **Manual trigger**: Can be triggered manually from the Actions tab
-
-### Image Naming Convention
-
-Images are published to GitHub Container Registry with the following naming pattern:
-```
-ghcr.io/planbrandon/oi-gas-monitor-{arch}:{version}
-ghcr.io/planbrandon/oi-gas-monitor-{arch}:latest
-```
-
-Examples:
-- `ghcr.io/planbrandon/oi-gas-monitor-amd64:1.0.0`
-- `ghcr.io/planbrandon/oi-gas-monitor-aarch64:latest`
-
-### How to Trigger a Build
-
-**Automatic (Push to main):**
-```bash
-git add .
-git commit -m "Your changes"
-git push origin main
-```
-
-**Manual Trigger:**
-1. Go to the [Actions tab](https://github.com/PlanBRandom/teleproject/actions/workflows/build-addon.yml)
-2. Click "Run workflow"
-3. Select the branch and click "Run workflow"
-
-**Version Release:**
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-### Required GitHub Permissions
-
-The workflow uses `GITHUB_TOKEN` which is automatically provided by GitHub Actions with the following permissions:
-- `contents: read` - Read repository contents
-- `packages: write` - Push images to GitHub Container Registry (ghcr.io)
-
-No additional secrets or configuration is required.
-
-### Build Process Details
-
-The build workflow:
-1. Checks out the repository code
-2. Sets up QEMU for multi-architecture emulation
-3. Configures Docker Buildx for cross-platform builds
-4. Authenticates with GitHub Container Registry
-5. Extracts version from `oi-gas-monitor/config.yaml` or git tag
-6. Builds Docker image for each architecture using appropriate Home Assistant base images
-7. Pushes images with version and `latest` tags
-8. Adds standard OCI labels for image metadata
-
-### Verifying Build Status
-
-Check build status:
-- **GitHub Actions**: [View workflows](https://github.com/PlanBRandom/teleproject/actions)
-- **Container Registry**: [View packages](https://github.com/PlanBRandom/teleproject/pkgs/container/oi-gas-monitor)
-
-### Troubleshooting Build Issues
-
-If builds fail:
-1. Check the workflow logs in the Actions tab
-2. Verify `oi-gas-monitor/config.yaml` has valid version format
-3. Ensure all dependencies in `requirements.txt` are available
-4. Check that `pipeline/` directory contains all required modules
-5. Verify Dockerfile syntax is correct
-
-## Support
-
-For issues or questions:
-- **Documentation**: See [ADDON_INSTALL.md](ADDON_INSTALL.md) for add-on installation
-- **Issues**: https://github.com/PlanBRandom/teleproject/issues
-- **Hardware Setup**: See hardware test scripts and documentation
-- Review logs with `-v` verbose flag
-
-## License
-
-MIT License - See LICENSE file
-
-[repository-badge]: https://img.shields.io/badge/Add%20Repository-41BDF5?logo=home-assistant&style=for-the-badge
-[repository-url]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FPlanBRandom%2Fteleproject
-- Open an issue with detailed error messages and configuration
+| Task | Command |
+|------|---------|
+| Launch GUI | `python launcher.py` |
+| Start monitoring | Monitoring tab → Start |
+| Check radios | `python diagnostics/verify_radio_config.py` |
+| Find F8 duplicates | `python diagnostics/packet_diagnostics.py --f8` |
+| Track F14 timeouts | `python diagnostics/packet_diagnostics.py --f14` |
+| Export data | Database tab → Export to CSV |
+| View logs | System tab → View Logs |
 
 ---
 
-**Built for telemetry data and gas sensor monitoring** 🛡️💨
+**Version:** 1.0  
+**Last Updated:** January 2026  
+**Status:** Production Ready ✅

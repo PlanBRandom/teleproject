@@ -1,0 +1,28 @@
+{
+  "device": {
+    "model": "OI-7530",
+    "radio_port": "COM11",
+    "radio_baud": 115200,
+    "network": "Network_25"
+  },
+  "modbus": {
+    "enabled": false,
+    "port": "COM10",
+    "baud": 9600,
+    "slave_id": 32
+  },
+  "mqtt": {
+    "enabled": true,
+    "broker": "a1bcc059f5f74a6d8271e8b567fecc6d.s1.eu.hivemq.cloud",
+    "port": 8883,
+    "username": "laird",
+    "password": "LairdRM024",
+    "use_tls": true,
+    "topic_prefix": "oi7500"
+  },
+  "logging": {
+    "enabled": true,
+    "file": "simple_monitor.log",
+    "console": true
+  }
+}
