@@ -67,6 +67,7 @@ class WeekendMonitor:
         
         # Initialize MQTT publisher
         self.mqtt_client = None
+        self.published_discovery = set()  # Track which channels have discovery published
         if 'mqtt' in self.config:
             try:
                 mqtt_config = MQTTConfig(
@@ -122,6 +123,77 @@ class WeekendMonitor:
         
         logger.info(f"Logging to: {log_file}")
     
+    def _publish_homeassistant_discovery(self, channel: int, gas_name: str):
+        """Publish Home Assistant MQTT discovery config for a channel"""
+        if not self.mqtt_client or channel in self.published_discovery:
+            return
+        
+        try:
+            device_info = {
+                "identifiers": [f"oi7530_ch{channel:02d}"],
+                "name": f"OI-7530 Channel {channel:02d}",
+                "manufacturer": "Otis Instruments",
+                "model": "OI-7530 Gas Monitor"
+            }
+            
+            # Sensor reading discovery
+            reading_config = {
+                "name": f"Channel {channel:02d} {gas_name}",
+                "unique_id": f"oi7530_ch{channel:02d}_reading",
+                "state_topic": f"oi7530/channel{channel:02d}",
+                "value_template": "{{ value_json.reading }}",
+                "unit_of_measurement": "ppm",
+                "device_class": "gas" if gas_name not in ["None", "O2", "LEL"] else None,
+                "state_class": "measurement",
+                "device": device_info
+            }
+            
+            # Battery discovery
+            battery_config = {
+                "name": f"Channel {channel:02d} Battery",
+                "unique_id": f"oi7530_ch{channel:02d}_battery",
+                "state_topic": f"oi7530/channel{channel:02d}",
+                "value_template": "{{ value_json.battery }}",
+                "unit_of_measurement": "V",
+                "device_class": "voltage",
+                "state_class": "measurement",
+                "device": device_info
+            }
+            
+            # RSSI discovery
+            rssi_config = {
+                "name": f"Channel {channel:02d} Signal",
+                "unique_id": f"oi7530_ch{channel:02d}_rssi",
+                "state_topic": f"oi7530/channel{channel:02d}",
+                "value_template": "{{ value_json.rssi }}",
+                "unit_of_measurement": "%",
+                "device_class": "signal_strength",
+                "state_class": "measurement",
+                "device": device_info
+            }
+            
+            # Fault discovery
+            fault_config = {
+                "name": f"Channel {channel:02d} Fault",
+                "unique_id": f"oi7530_ch{channel:02d}_fault",
+                "state_topic": f"oi7530/channel{channel:02d}",
+                "value_template": "{{ value_json.fault }}",
+                "device": device_info
+            }
+            
+            # Publish discovery configs
+            base_topic = f"homeassistant/sensor/oi7530_ch{channel:02d}"
+            self.mqtt_client.mqtt_client.publish(f"{base_topic}_reading/config", json.dumps(reading_config), retain=True)
+            self.mqtt_client.mqtt_client.publish(f"{base_topic}_battery/config", json.dumps(battery_config), retain=True)
+            self.mqtt_client.mqtt_client.publish(f"{base_topic}_rssi/config", json.dumps(rssi_config), retain=True)
+            self.mqtt_client.mqtt_client.publish(f"{base_topic}_fault/config", json.dumps(fault_config), retain=True)
+            
+            self.published_discovery.add(channel)
+            logger.debug(f"Published Home Assistant discovery for Channel {channel:02d}")
+            
+        except Exception as e:
+            logger.debug(f"Home Assistant discovery publish error: {e}")
+    
     def on_radio_message(self, msg: RadioMessage):
         """Callback for received radio messages"""
         self.packet_count += 1
@@ -152,6 +224,10 @@ class WeekendMonitor:
         # Publish to MQTT if connected
         if self.mqtt_client:
             try:
+                # Publish Home Assistant discovery (once per channel)
+                self._publish_homeassistant_discovery(msg.channel, gas_name)
+                
+                # Publish sensor data
                 topic = f"oi7530/channel{msg.channel:02d}"
                 payload = {
                     "channel": msg.channel,

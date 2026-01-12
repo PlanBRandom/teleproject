@@ -544,67 +544,73 @@ class RadioReceiver:
                     break
                 
                 # Frame structure:
-                # [0x81][Len][0x00][RSSI][MAC:3][Channel:2][Protocol][Data...][Checksum]
-                # If protocol & 0x80: append [SensorMAC:3][SensorRSSI]
+                # [0x81][Len][0x00][RSSI][MAC:3][RadioAddr:2][Protocol][Float:4]...[4-byte trailer NOT in Len]
+                # Trailer always contains 4 bytes: [Mode][Battery][Gas][Checksum] or [SensorMAC:3][SensorRSSI] for repeated
                 payload_len = self.buffer[1]
                 header_len = 3  # 0x81 + Len + 0x00
-                min_frame_len = header_len + payload_len
+                trailer_len = 4  # Always 4 bytes after payload (NOT counted in payload_len)
+                total_frame_len = header_len + payload_len + trailer_len
                 
-                print(f"[RADIO] Payload length: {payload_len}, min frame: {min_frame_len}, buffer has: {len(self.buffer)}")
+                print(f"[RADIO] Payload length: {payload_len}, total frame: {total_frame_len}, buffer has: {len(self.buffer)}")
                 
-                if len(self.buffer) < min_frame_len:
-                    print(f"[RADIO] Need more data (have {len(self.buffer)}, need {min_frame_len})")
+                if len(self.buffer) < total_frame_len:
+                    print(f"[RADIO] Need more data (have {len(self.buffer)}, need {total_frame_len})")
                     break
                 
-                # Extract the full payload (RSSI + MAC + Channel + Protocol + Data + Checksum)
+                # Extract payload + trailer
                 payload = bytearray(self.buffer[header_len:header_len + payload_len])
+                trailer = bytearray(self.buffer[header_len + payload_len:total_frame_len])
                 print(f"[RADIO] Extracted payload ({len(payload)} bytes): {bytes(payload[:24]).hex()}")
+                print(f"[RADIO] Extracted trailer (4 bytes): {bytes(trailer).hex()}")
                 
                 # Parse the payload structure
-                if len(payload) < 7:  # Need at least RSSI(1) + MAC(3) + Channel(2) + Protocol(1)
+                if len(payload) < 7:  # Need at least RSSI(1) + MAC(3) + RadioAddr(2) + Protocol(1)
                     print(f"[RADIO] Payload too short")
                     self.buffer.pop(0)
                     continue
                 
-                # Extract components
+                # Extract components from payload
                 rssi_byte = payload[0]
-                repeater_mac = bytes(payload[1:4])
-                channel = (payload[4] << 8) | payload[5]
+                sensor_mac = bytes(payload[1:4])
+                radio_addr = (payload[4] << 8) | payload[5]
                 protocol_byte = payload[6]
                 
                 # Check if this is a repeated packet (bit 7 set)
                 is_repeated = (protocol_byte & 0x80) == 0x80
                 protocol = protocol_byte & 0x7F  # Clear repeater bit
                 
-                print(f"[RADIO] RSSI={rssi_byte:02x}, RepeaterMAC={repeater_mac.hex()}, Channel={channel}, Protocol={protocol}, Repeated={is_repeated}")
+                print(f"[RADIO] RSSI={rssi_byte:02x}, MAC={sensor_mac.hex()}, RadioAddr={radio_addr}, Protocol={protocol}, Repeated={is_repeated}")
                 
-                # Calculate expected frame size
-                total_frame_len = min_frame_len
-                if is_repeated:
-                    total_frame_len += 4  # Add sensor MAC (3) + sensor RSSI (1)
+                # Extract protocol data based on official Protocol 1 spec
+                # Laird payload (12 bytes): [RSSI][MAC:3][RadioAddr:2][Protocol][Float:4][Mode]
+                # Laird trailer (4 bytes): [Battery][Gas][Fault][Checksum]
+                # Gen2 needs: [Addr:2][Protocol][Float:4][Mode][Battery][Gas][Fault][Checksum]
                 
-                if len(self.buffer) < total_frame_len:
-                    print(f"[RADIO] Need more data for repeated packet (have {len(self.buffer)}, need {total_frame_len})")
-                    break
+                float_data = payload[7:11] if len(payload) >= 11 else bytearray(4)
+                mode_byte = payload[11] if len(payload) >= 12 else 0
                 
-                # Extract the Protocol 1/2/7 data (starts at offset 7 in payload)
-                # Payload structure: [RSSI][MAC:3][Channel:2][Protocol][Float:4][Mode][Battery][Gas][Fault][Checksum]
-                # The payload length includes the checksum as the last byte
-                # For repeated packets, sensor MAC+RSSI are AFTER the payload (not counted in length)
-                protocol_data_start = 7
-                protocol_data = payload[protocol_data_start:]  # Includes checksum at end
+                print(f"[RADIO] Float data: {bytes(float_data).hex()}, Mode: 0x{mode_byte:02x}")
+                print(f"[RADIO] Trailer: {bytes(trailer).hex()}")
                 
-                print(f"[RADIO] Protocol data ({len(protocol_data)} bytes): {bytes(protocol_data).hex()}")
-                
-                # Prepend channel as 2-byte address for Protocol parsing
-                # Gen2 format: [Channel:2][Protocol][Float:4][Mode][Battery][Gas][Fault][Checksum]
+                # Build Gen2 packet: [RadioAddr:2][Protocol][Float:4][Mode][Battery][Gas][Fault][Checksum]
                 gen2_packet = bytearray()
-                gen2_packet.append((channel >> 8) & 0xFF)  # Channel high byte
-                gen2_packet.append(channel & 0xFF)         # Channel low byte
-                gen2_packet.append(protocol)               # Protocol number (without bit 7)
-                gen2_packet.extend(protocol_data)          # Rest of data including checksum
+                gen2_packet.append((radio_addr >> 8) & 0xFF)  # Addr MSB
+                gen2_packet.append(radio_addr & 0xFF)         # Addr LSB
+                gen2_packet.append(protocol)                  # Protocol
+                gen2_packet.extend(float_data)                # Float (4 bytes)
                 
-                print(f"[RADIO] Reconstructed Gen2 packet ({len(gen2_packet)} bytes): {bytes(gen2_packet[:20]).hex()}")
+                if is_repeated:
+                    # Repeated: payload has Mode/Battery/Gas/Fault, trailer has sensor MAC+RSSI
+                    if len(payload) >= 15:
+                        gen2_packet.extend(payload[11:15])    # Mode, Battery, Gas, Fault
+                    gen2_packet.append(trailer[3] if len(trailer) >= 4 else 0)  # Checksum
+                    print(f"[RADIO] Repeated - Sensor MAC: {bytes(trailer[:3]).hex()}, RSSI: {trailer[3]:02x}")
+                else:
+                    # Direct: payload has Mode, trailer has Battery/Gas/Fault/Checksum
+                    gen2_packet.append(mode_byte)             # Mode (byte 7)
+                    gen2_packet.extend(trailer)               # Battery, Gas, Fault, Checksum (bytes 8-11)
+                
+                print(f"[RADIO] Gen2 packet ({len(gen2_packet)} bytes): {bytes(gen2_packet).hex()}")
                 
                 # Convert RSSI to percentage (from LairdRadio.c)
                 if rssi_byte >= 128:
@@ -622,7 +628,7 @@ class RadioReceiver:
                 print(f"[RADIO] RSSI: {rssi_byte:02x} → {rssi_dbm} dBm → {rssi_pct}%")
                 
                 # Parse Gen2 packet
-                self._parse_gen2_packet(gen2_packet, rssi=rssi_pct, src_mac=repeater_mac)
+                self._parse_gen2_packet(gen2_packet, rssi=rssi_pct, src_mac=sensor_mac)
                 
                 # Remove processed frame
                 self.buffer = self.buffer[total_frame_len:]

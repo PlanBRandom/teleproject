@@ -1,69 +1,105 @@
-# OI-7500 Pipeline Control Center
+# OI-7500 Radio Monitoring System
 
-Complete monitoring and diagnostic system for Oldham OI-7500 gas detection with WireFree radios.
+Production-ready monitoring system for Otis Instruments OI-6000 series gas sensors using Laird RM024 radio receivers and Home Assistant integration.
 
-## 🚀 Quick Start
+## System Status
 
-### Launch the GUI Control Center
+✅ **Protocol 1 Decoder**: 100% success rate  
+✅ **Home Assistant Integration**: MQTT discovery working  
+✅ **Active Sensors**: 10 sensors on Network 15  
+✅ **Validation**: O2 sensor reading 20.9 ppm (atmospheric oxygen)
 
-```bash
-python launcher.py
-```
+## Quick Start
 
-This opens the main control center with tabs for:
-- **📡 Monitoring**: Start/stop monitoring, view live data
-- **🔧 Diagnostics**: Radio config checks, packet analysis, F8/F14 troubleshooting  
-- **💾 Database**: View packet history, export data, statistics
-- **⚙️ System**: Quick actions, logs, system info
+```powershell
+# 1. Activate virtual environment
+.\.venv\Scripts\Activate.ps1
 
-![Control Center](docs/screenshots/control-center.png)
-
-### Prerequisites
-
-```bash
-# Install dependencies
+# 2. Install dependencies (if needed)
 pip install -r requirements.txt
 
-# Verify radios are SECONDARY (receive-only) - CRITICAL!
-python diagnostics/verify_radio_config.py
+# 3. Configure settings
+# Edit config.yaml with your MQTT broker details and COM ports
+
+# 4. Run the monitor
+python monitor.py
 ```
 
-## 📁 Project Structure
+## Hardware Configuration
+
+### Active Radio Receivers
+
+- **COM7** (Network 15): Laird RM024 @ 115200 baud - Direct sensor packets
+- **COM11** (Network 25): Laird RM024 @ 115200 baud - Repeater packets  
+- **COM12** (Network 20): Laird RM024 @ 115200 baud - Direct sensor packets
+
+### Active Sensors (Network 15)
+
+| Channel | Gas Type | Battery | Status |
+|---------|----------|---------|--------|
+| Ch002   | H2S      | 21.0V   | ✅     |
+| Ch003   | H2S      | 3.4V    | ✅     |
+| Ch005   | CO       | 3.6V    | ✅     |
+| Ch010   | H2S      | 11.0V   | ✅     |
+| Ch012   | LEL (NH3)| 11.0V   | ✅     |
+| Ch020   | VOC (Cl2)| 3.9V    | ✅     |
+| Ch022   | LEL (NH3)| 3.9V    | ✅     |
+| Ch023   | LEL (NH3)| 3.9V    | ✅     |
+| Ch033   | H2S      | 22.0V   | ✅     |
+| Ch255   | O2       | 23.0V   | ✅     |
+
+## Configuration
+
+### config.yaml
+
+```yaml
+mqtt:
+  host: "mqtt.example.com"
+  port: 1883
+  username: "user"
+  password: "password"
+
+radios:
+  network15:
+    port: "COM7"
+    baudrate: 115200
+    network_id: 15
+  
+  network25:
+    port: "COM11"
+    baudrate: 115200
+    network_id: 25
+```
+
+## Repository Structure
 
 ```
 oi-7500-pipeline/
-├── launcher.py                   # 🎯 MAIN GUI LAUNCHER (START HERE)
-├── config.json                   # Central configuration
+├── monitor.py              # Main production script ⭐
+├── config.yaml             # Configuration
+├── requirements.txt        # Python dependencies
 │
-├── monitoring/                   # Monitoring scripts
-│   ├── monitor_multi_network.py  # Main 3-network monitor
-│   ├── mqtt_monitor.py           # Simple MQTT subscriber
-│   └── start_with_modbus.py      # Modbus integration
+├── pipeline/               # Core library
+│   ├── radio_receiver.py  # Protocol 1 decoder (100% working)
+│   ├── mqtt.py             # MQTT client
+│   └── register.py         # Modbus registers
 │
-├── diagnostics/                  # Diagnostic tools
-│   ├── packet_diagnostics.py     # Database query tool
-│   ├── verify_radio_config.py    # Check radio mode
-│   └── fix_radio_secondary.py    # Fix radio to secondary
+├── tools/                  # Utility scripts
+│   ├── configure_radio.py  # Radio configuration
+│   ├── decode_packet.py    # Packet decoder
+│   ├── manual_decode.py    # Interactive analysis
+│   └── hardware_test.py    # Connection testing
 │
-├── database/                     # Database layer
-│   └── packet_database.py        # SQLite packet storage
+├── reference/              # Documentation
+│   ├── protocol/           # Protocol specifications
+│   └── hardware/           # Hardware documentation
 │
-├── pipeline/                     # Core modules
-│   ├── fault_tracking.py
-│   ├── mqtt.py
-│   ├── register.py
-│   └── stat.py
+├── configs/                # HA dashboard configs
+│   └── lovelace/          # Dashboard YAML files
 │
-├── gui/                          # GUI applications
-│   └── web_gui/                  # Web-based GUI (Flask)
-│
-├── utils/                        # Utility scripts
-│   └── generate_channels.py      # Channel YAML generator
-│
-├── protocol_logs/                # Logs & database
-│   └── packets.db                # SQLite packet database
-│
-└── test/                         # Unit tests
+├── logs/                   # Log files
+├── test/                   # Unit tests
+└── archive/                # Old/test files (150+ archived)
 ```
 
 ## 🔧 Features
