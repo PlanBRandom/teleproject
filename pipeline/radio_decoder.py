@@ -97,7 +97,9 @@ class OIRadioDecoder:
         # Bytes 0-1: Transmitter Address
         address = struct.unpack('>H', packet[0:2])[0]
         result['transmitter_address'] = address
-        result['channel'] = address  # Address maps to channel number
+        # Note: The transmitter address is the radio sensor's unique ID.
+        # The monitor assigns this to a channel (receiving slot), but the
+        # radio itself only knows its own address, not the channel number.
         
         # Byte 2: Protocol (should be 1)
         protocol = packet[2]

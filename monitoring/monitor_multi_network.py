@@ -186,7 +186,8 @@ class MultiNetworkMonitor:
                 battery_voltage = float(battery_reading)
             
             return {
-                'channel': channel,
+                'transmitter_address': transmitter_address,  # Radio sensor's address
+                'channel': channel,  # Monitor's receiving slot for this transmitter
                 'reading': reading,
                 'gas_type': gas_type,
                 'gas_name': GAS_TYPES.get(gas_type, f"Unknown({gas_type})"),
@@ -260,6 +261,7 @@ class MultiNetworkMonitor:
                                 # Format precision-aware reading
                                 precision = decoded.get('precision', 2)
                                 reading_str = f"{decoded['reading']:.{precision}f}"
+                                transmitter_address = decoded.get('transmitter_address', 0)
                                 
                                 # Format fault if present
                                 fault_str = ""
@@ -269,7 +271,7 @@ class MultiNetworkMonitor:
                                 
                                 self.analysis_log.write(
                                     f"[{now}] {network_name:12s} | "
-                                    f"Ch {decoded['channel']:2d} | "
+                                    f"Addr {transmitter_address:5d} → Ch {decoded['channel']:2d} | "
                                     f"{decoded['gas_name']:8s} | "
                                     f"{reading_str:>10s} | "
                                     f"Batt {decoded.get('battery_voltage', 0):.1f}V"
@@ -374,6 +376,7 @@ class MultiNetworkMonitor:
     def _publish_channel_to_mqtt(self, network_name, decoded):
         """Publish channel reading to MQTT."""
         try:
+            transmitter_address = decoded.get('transmitter_address', 0)
             channel = decoded['channel']
             reading = decoded['reading']
             gas_name = decoded['gas_name']
@@ -388,7 +391,8 @@ class MultiNetworkMonitor:
             # Publish to network-specific topic
             topic = f"oi7500/network/{network_name}/channel_{channel}/state"
             payload = {
-                "channel": channel,
+                "transmitter_address": transmitter_address,  # Radio sensor's address
+                "channel": channel,  # Monitor's receiving slot
                 "reading": round(reading, precision),
                 "gas_type": gas_name,
                 "gas_type_code": gas_type,
@@ -406,7 +410,8 @@ class MultiNetworkMonitor:
             # Also publish to channel-aggregated topic (all networks for same channel)
             topic_agg = f"oi7500/channels/channel_{channel}/state"
             payload_agg = {
-                "channel": channel,
+                "transmitter_address": transmitter_address,  # Radio sensor's address
+                "channel": channel,  # Monitor's receiving slot
                 "reading": round(reading, precision),
                 "gas_type": gas_name,
                 "battery_voltage": battery_voltage,

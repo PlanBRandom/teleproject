@@ -45,6 +45,7 @@ def on_message(client, userdata, msg):
         timestamp = datetime.now().strftime("%H:%M:%S")
         
         # Extract data
+        transmitter_address = data.get('transmitter_address', 0)
         channel = data.get('channel', '?')
         reading = data.get('reading', 0)
         gas_type = data.get('gas_type', 'Unknown')
@@ -77,7 +78,10 @@ def on_message(client, userdata, msg):
             battery_str = str(battery)
         
         # Print formatted message
-        print(f"{color}[{timestamp}] {network:12s} | Ch {channel:2d} | {gas_type:8s} | {reading_str:>10s} | Batt {battery_str} | {fault_display}\033[0m")
+        if transmitter_address:
+            print(f"{color}[{timestamp}] {network:12s} | Addr {transmitter_address:5d} → Ch {channel:2d} | {gas_type:8s} | {reading_str:>10s} | Batt {battery_str} | {fault_display}\033[0m")
+        else:
+            print(f"{color}[{timestamp}] {network:12s} | Ch {channel:2d} | {gas_type:8s} | {reading_str:>10s} | Batt {battery_str} | {fault_display}\033[0m")
         
         # Print additional details if not normal
         if sensor_mode != 0 or fault_code != 0:
