@@ -1,0 +1,22 @@
+================================================================================
+OI-7500 MONITORING RUN - SUMMARY REPORT
+================================================================================
+
+Generated: 2026-01-13 09:58:15
+
+RADIO DATA:
+  Total Packets: 16,586
+  Total Bytes:   355,275
+  Frame Types:   4
+  Protocols:     5
+
+MODBUS DATA:
+  Requests:  0
+  Responses: 0
+
+FILE COUNTS:
+  Radio logs:    3
+  Protocol logs: 53
+  General logs:  29
+
+================================================================================
